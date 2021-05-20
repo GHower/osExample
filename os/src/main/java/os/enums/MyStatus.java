@@ -5,8 +5,13 @@ package os.enums;
  */
 public enum MyStatus {
 
-    READY("就绪"),RUN("运行"),WAIT("等待");
-    private String name;
+    BACK("后备"),
+    READY("就绪"),
+    RUN("运行"),
+    WAIT("等待"),
+    FINISH("完成");
+
+    private final String name;
     MyStatus(String name){
         this.name = name;
     }
