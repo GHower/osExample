@@ -14,4 +14,8 @@ public class MyMemory {
      * 内存大小
      */
     Integer size;
+    /**
+     * 最大内存
+     */
+    Integer max;
 }

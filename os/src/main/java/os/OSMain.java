@@ -12,10 +12,20 @@ public class OSMain {
     public static void main(String[] args) {
         OSMain osMain = new OSMain();
         osMain.init();
+        // 进程进入
         osMain.processIn();
-
+        // todo:为进程设置需要的最大资源等信息，后面则分配资源
+        osMain.processResource();
         ProcessServiceImpl processService= new ProcessServiceImpl();
-        processService.FCFS(osMain.queue.get(MyStatus.BACK));
+        List<MyPCB> fcfs = processService.FCFS(osMain.queue.get(MyStatus.BACK));
+//        osMain
+    }
+
+    /**
+     * 为进程设置资源
+     */
+    private void processResource() {
+
     }
 
     /**

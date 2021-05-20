@@ -19,7 +19,15 @@ public class MyProcess {
      */
     private String name;
     /**
-     * 进程所需的资源数组
+     * 进程所需的最大资源数组
      */
-    private List<MyResource> resources;
+    private List<MyResource> max;
+    /**
+     * 进程已分配的资源数组
+     */
+    private List<MyResource> allocation;
+    /**
+     * 进程剩余所需的资源数组
+     */
+    private List<MyResource> need;
 }

@@ -16,8 +16,9 @@ import java.util.stream.Collectors;
  */
 public class ProcessServiceImpl implements ProcessService {
     /**
-     * TODO:先来先服务，计算各个时间信息
-     *
+     * 先来先服务，计算各个时间信息
+     * fixme: 时间数据应该由CPU回响过来，而不是手动输入
+     * fixme: 步骤执行，每个时间单位执行一个。
      * @param pcbs 需要计算的pcb数组,PCB中按到达时间优先
      * @return 先来先服务结果
      */
@@ -62,7 +63,15 @@ public class ProcessServiceImpl implements ProcessService {
      * @return 短作业优先调整后的pcb数组
      */
     public List<MyPCB> SJF(List<MyPCB> pcbs) {
-        return null;
+        List<MyPCB> list = null;
+        if (pcbs != null || pcbs.size() > 0){
+            list = pcbs.stream().sorted((e1,e2)->{
+                        return (int) (e1.getRunTime()-e2.getRunTime());
+                    }
+            ).collect(Collectors.toList());
+        }
+
+        return list;
     }
 
     /**
@@ -72,6 +81,18 @@ public class ProcessServiceImpl implements ProcessService {
      * @return 高响应比优先调整后的pcb数组
      */
     public List<MyPCB> FPF(List<MyPCB> pcbs) {
+
+        return null;
+    }
+
+    /**
+     * TODO:时间片轮转算法
+     *
+     * @param pcbs 需要计算的pcb数组,PCB中按运行时间优先
+     * @return 时间片轮转算法调整后的pcb数组
+     */
+    public List<MyPCB> RR(List<MyPCB> pcbs) {
+
         return null;
     }
 

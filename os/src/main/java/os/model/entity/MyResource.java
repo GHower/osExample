@@ -3,7 +3,7 @@ package os.model.entity;
 import lombok.Data;
 
 /**
- * 资源类
+ * 资源类,指的是最大申请资源
  */
 @Data
 public class MyResource {
@@ -12,4 +12,8 @@ public class MyResource {
      */
     private String name;
 
+    /**
+     * 使用的数量
+     */
+    private Integer number;
 }
