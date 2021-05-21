@@ -5,6 +5,7 @@ import os.enums.MyStatus;
 import os.model.entity.MyCB;
 import os.model.entity.MyJCB;
 import os.model.entity.MyPCB;
+import os.model.entity.MyResource;
 import os.service.impl.ProcessServiceImpl;
 
 import java.time.LocalDateTime;
@@ -65,23 +66,41 @@ public class OSMain {
     public List<MyJCB> testJob(){
         MyJCB cloudMusic = new MyJCB();
         cloudMusic.setId(1);
-        cloudMusic.setName("网易云音乐");
+        cloudMusic.setName("网易云音乐-播放音乐");
         cloudMusic.setType(1);
         cloudMusic.setUsername("ghower");
+        cloudMusic.setResources(testResource());
 
         MyJCB QQ = new MyJCB();
         QQ.setId(2);
-        QQ.setName("腾讯QQ");
+        QQ.setName("腾讯QQ-");
         QQ.setType(1);
         QQ.setUsername("ghower");
+        QQ.setResources(testResource());
 
         List<MyJCB> jcbs = new ArrayList<>();
         jcbs.add(cloudMusic);
         jcbs.add(QQ);
         for (MyJCB jcb : jcbs) {
             System.out.println("用户{"+jcb.getUsername()+"}提交了作业{"+jcb.getName()+"}");
+
         }
         return jcbs;
+    }
+    /**
+     * 随机生成几个申请资源的数组，这是模拟的
+     * fixme: 现在只假设只有三个资源被需要
+     * @return 生成的申请资源集合
+     */
+    public List<MyResource> testResource(){
+        List<MyResource> result = new ArrayList<>();
+        for (int i=1;i<=3;i++){
+            MyResource myResource = new MyResource();
+            myResource.setName("R"+i);
+            myResource.setNumber((int) (Math.random()*5));
+            result.add(myResource);
+        }
+        return result;
     }
 
     /**
