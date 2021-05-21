@@ -3,6 +3,8 @@ package os;
 
 import os.enums.MyStatus;
 import os.model.entity.MyPCB;
+import os.service.BankService;
+import os.service.impl.BankServiceImpl;
 import os.service.impl.ProcessServiceImpl;
 
 import java.util.*;
@@ -10,6 +12,7 @@ import java.util.*;
 public class OSMain {
     Map<MyStatus, List<MyPCB>> queue=null;
     public static void main(String[] args) {
+/*
         OSMain osMain = new OSMain();
         osMain.init();
         // 进程进入
@@ -18,7 +21,11 @@ public class OSMain {
         osMain.processResource();
         ProcessServiceImpl processService= new ProcessServiceImpl();
         List<MyPCB> fcfs = processService.FCFS(osMain.queue.get(MyStatus.BACK));
-//        osMain
+*/
+        BankServiceImpl bankService = new BankServiceImpl();
+        bankService.printSystemVariable();
+        bankService.setRequest();
+
     }
 
     /**
