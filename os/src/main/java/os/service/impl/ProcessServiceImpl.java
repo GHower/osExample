@@ -1,6 +1,8 @@
 package os.service.impl;
 
 import os.model.entity.MyPCB;
+import os.model.entity.MyProcess;
+import os.model.entity.MyResource;
 import os.service.ProcessService;
 
 import java.time.Instant;
@@ -80,6 +82,8 @@ public class ProcessServiceImpl implements ProcessService {
         displayRunInfo(pcbs);
     }
 
+
+
     /**
      * 输出某个进程的运行信息
      */
@@ -135,4 +139,17 @@ public class ProcessServiceImpl implements ProcessService {
 //        }
 //        System.out.println(result);
     }
+
+
+    /**
+     * 根据进程PID找到 allocation   private List<MyResource> allocation;
+     */
+    @Override
+    public List<MyResource> getAllocation(List<MyProcess> allocation, Integer id) {
+
+
+
+        return  null;
+    }
+
 }

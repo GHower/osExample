@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 进程类
@@ -30,4 +31,17 @@ public class MyProcess {
      * 进程剩余所需的资源数组
      */
     private List<MyResource> need;
+
+/*    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MyProcess myProcess = (MyProcess) o;
+        return id.equals(myProcess.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }*/
 }
