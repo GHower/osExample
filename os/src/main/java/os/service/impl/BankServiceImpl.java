@@ -119,6 +119,10 @@ public class BankServiceImpl implements BankService {
                 String name = myResource.getName();
                 //获取占有的资源该名称的资源数量
                 Integer number = myResource.getNumber();
+
+                //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
+
+
                 /**
                  * 先做映射再插入
                  * 根据资源名称和资源数量插入到allocation中
@@ -139,6 +143,9 @@ public class BankServiceImpl implements BankService {
                 String name = myResource.getName();
                 //获取占有的资源该名称的资源数量
                 Integer number = myResource.getNumber();
+
+                //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
+
                 /**
                  * 先做映射再插入
                  * 根据资源名称和资源数量插入到allocation中
@@ -388,6 +395,9 @@ public class BankServiceImpl implements BankService {
          */
         for (int j = 0; j < available.length; j++) {
                 MyResource resource = myResources.get(j);
+
+                 //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
+
                 Request[num][j] = resource.getNumber();
         }
 
