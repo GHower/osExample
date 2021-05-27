@@ -13,60 +13,19 @@ import os.service.impl.ProcessServiceImpl;
 import java.util.*;
 
 public class OSMain {
-    Map<MyStatus, List<MyPCB>> innerQueue=null;
-    Map<MyStatus, List<MyJCB>> outsideQueue=null;
+    static Map<MyStatus, List<MyPCB>> innerQueue=null;
+    static Map<MyStatus, List<MyJCB>> outsideQueue=null;
     JobService jobService= new JobServiceImpl();
     ProcessService processService= new ProcessServiceImpl();
     BankService bankService = new BankServiceImpl();
 
     public static void main(String[] args) {
 
-        OSMain osMain = new OSMain();
-        osMain.init();
-        osMain.run();
+//        OSMain osMain = new OSMain();
+//        osMain.init();
+//        osMain.run();
 
-//        List<MyProcess> myProcesses = new ArrayList<>();
-//        List<MyPCB> myPCBS = new ArrayList<>();
-//        for (int i = 0; i < 10; i++) {
-//            List<MyResource> myResourceList = new ArrayList<>();
-//            List<MyResource> myResourceList1 = new ArrayList<>();
-//            MyPCB myPCB = new MyPCB();
-//            MyProcess myProcess = new MyProcess();
-//            myPCB.setPid(i);
-//            myProcess.setId(i);
-//            for (int j = 0; j < 5; j++) {
-//                MyResource myResource = new MyResource();
-//                myResource.setName("p"+j);
-//                myResource.setNumber(3);
-//                myResourceList.add(myResource);
-//            }
-//            for (int j = 0; j < 5; j++) {
-//                MyResource myResource = new MyResource();
-//                myResource.setName("p"+j);
-//                myResource.setNumber(7);
-//                myResourceList1.add(myResource);
-//            }
-//            myProcess.setAllocation(myResourceList);
-//            myProcess.setMax(myResourceList1);
-//            myPCBS.add(myPCB);
-//            myProcesses.add(myProcess);
-//        }
-//
-//        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
-////        bankService.printSystemVariable();
-//        MyRequest myRequest = new MyRequest();
-//        myRequest.setId(3);
-//
-//        List<MyResource> myResourceList = new ArrayList<>();
-//        for (int j = 0; j < 5; j++) {
-//            MyResource myResource = new MyResource();
-//            myResource.setName("p"+j);
-//            myResource.setNumber(2);
-//            myResourceList.add(myResource);
-//        }
-//        myRequest.setRequest(myResourceList);
-//        System.out.println(bankService.setRequest(myRequest));
-////      bankService.BankerAlgorithm();
+
     }
     /**
      * 在这里写主程序代码，懒得弄静态了
@@ -77,7 +36,48 @@ public class OSMain {
         // 更新 后备作业 队列
         outsideQueue.put(MyStatus.BACK,myJCBS);
 
+        List<MyProcess> myProcesses = new ArrayList<>();
+        List<MyPCB> myPCBS = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            List<MyResource> myResourceList = new ArrayList<>();
+            List<MyResource> myResourceList1 = new ArrayList<>();
+            MyPCB myPCB = new MyPCB();
+            MyProcess myProcess = new MyProcess();
+            myPCB.setPid(i);
+            myProcess.setId(i);
+            for (int j = 0; j < 5; j++) {
+                MyResource myResource = new MyResource();
+                myResource.setName("r"+j);
+                myResource.setNumber(3);
+                myResourceList.add(myResource);
+            }
+            for (int j = 0; j < 5; j++) {
+                MyResource myResource = new MyResource();
+                myResource.setName("r"+j);
+                myResource.setNumber(7);
+                myResourceList1.add(myResource);
+            }
+            myProcess.setAllocation(myResourceList);
+            myProcess.setMax(myResourceList1);
+            myPCBS.add(myPCB);
+            myProcesses.add(myProcess);
+        }
 
+        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
+//        bankService.printSystemVariable();
+        MyRequest myRequest = new MyRequest();
+        myRequest.setId(3);
+
+        List<MyResource> myResourceList = new ArrayList<>();
+        for (int j = 0; j < 5; j++) {
+            MyResource myResource = new MyResource();
+            myResource.setName("p"+j);
+            myResource.setNumber(2);
+            myResourceList.add(myResource);
+        }
+        myRequest.setRequest(myResourceList);
+        System.out.println(bankService.setRequest(myRequest));
+//      bankService.BankerAlgorithm();
     }
     /**
      * 为进程设置资源
@@ -96,6 +96,7 @@ public class OSMain {
         outsideQueue = new HashMap<>();
 
         List<MyJCB> backList = new ArrayList<>();
+
         List<MyPCB> readyList = new ArrayList<>();
         List<MyPCB> runList = new ArrayList<>();
         List<MyPCB> waitList = new ArrayList<>();

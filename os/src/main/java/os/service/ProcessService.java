@@ -10,10 +10,13 @@ import java.util.List;
  * 进程调度服务
  */
 public interface ProcessService {
+    /**
+     * 通过pid找到pcb
+     */
+    public MyPCB getJcbByPid(Integer pid);
 
     /**
-     * 根据进程PID找到 allocation   private List<MyResource> allocation;
+     * 批量生成测试的Process,随机生成
      */
-    public List<MyResource> getAllocation(List<MyProcess> allocation, Integer id);
-
+    public List<MyProcess> testProcess(int num);
 }

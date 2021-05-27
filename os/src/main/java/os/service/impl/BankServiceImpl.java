@@ -7,6 +7,7 @@ import os.model.entity.MyResource;
 import os.service.BankService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 /**
@@ -69,16 +70,16 @@ public class BankServiceImpl implements BankService {
         setNeed();*/
     }
 
+    /**
+     *
+     * 获取各进程申请资源的信息
+     *      进程最大资源需求量 max
+     *      进程已占有资源 allocation（谁来指定）
+     *      系统指定可用资源 available (目前只能写三类资源)
+     *  根据pcbs里面的每一个进程的pid找到对应的MyProcess，,根据每一个Myprocess获取到进程的占有资源情况，然后统计出每类资源的占有总数
+     */
     @Override
     public boolean checkSafe(List<MyPCB> pcbs , List<MyProcess> allocation) {
-        /**
-         *
-         * 获取各进程申请资源的信息
-         *      进程最大资源需求量 max
-         *      进程已占有资源 allocation（谁来指定）
-         *      系统指定可用资源 available (目前只能写三类资源)
-         *  根据pcbs里面的每一个进程的pid找到对应的MyProcess，,根据每一个Myprocess获取到进程的占有资源情况，然后统计出每类资源的占有总数
-         */
         List<MyProcess> processList = new ArrayList<>();
         for (MyPCB pcb : pcbs) {
             Integer pcbPid = pcb.getPid();
@@ -254,9 +255,7 @@ public class BankServiceImpl implements BankService {
     public boolean SecurityAlgorithm() {
         Boolean Finish[] = new Boolean[max.length];//初始化Finish
         //设值
-        for (int i = 0; i < Finish.length; i++) {
-            Finish[i]=false;
-        }
+        Arrays.fill(Finish, false);
 
         int count = 0;//完成进程数
         int circle=0;//循环圈数

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 调度服务，这里写所有的调度操作，包括 进程调度到不同队列等等
+ * 调度服务，这里写所有的调度操作，包括 进程切换到不同队列 等等
  * fixme: 时间数据应该由CPU回响过来，而不是手动输入
  * fixme: 步骤执行，每个时间单位执行一个。
  */
@@ -107,7 +107,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     // 计算进程运行过程中的各种时间
     private void calculate(MyPCB pcbs){
-//
 //        for (int i = 0; i < pcbs.size(); i++) {
 //            MyPCB myPCB = result.get(i);
 //            // 第一项，直接计算
@@ -137,12 +136,5 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
 
-    /**
-     * 根据进程PID找到 allocation   private List<MyResource> allocation;
-     */
-    @Override
-    public List<MyResource> getAllocation(List<MyProcess> allocation, Integer id) {
-        return  null;
-    }
 
 }

@@ -10,9 +10,8 @@ import java.time.LocalDateTime;
  * PCB，其中时间单位全部用秒来模拟
  * TODO: 将时间单位改用时间戳进行模拟，更加真实，功能完成后再做这个修改
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class MyPCB extends MyCB{
+public class MyPCB {
     /**
      * 对应进程的PID,进程标识符,即 MyPCB.pid => MyProcess.id
      * 相当于指针，指向process,用来找到真正的进程实体

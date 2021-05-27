@@ -12,9 +12,8 @@ import java.util.List;
  * 1. 作业的运行时间应该是所有所属进程的运行时间总和
  * 2. JCB的结构和PCB比较接近
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class MyJCB extends MyCB{
+public class MyJCB {
     /**
      * 作业的标识，
      */

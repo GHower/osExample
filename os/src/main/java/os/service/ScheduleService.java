@@ -38,9 +38,5 @@ public interface ScheduleService {
     public void display(List<MyPCB> pcbs);
 
 
-    /**
-     * 根据进程PID找到 allocation   private List<MyResource> allocation;
-     */
-    public List<MyResource> getAllocation(List<MyProcess> allocation, Integer id);
 
 }
