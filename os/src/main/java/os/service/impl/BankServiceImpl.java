@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class BankServiceImpl implements BankService {
     /**
-     * 可用资源，初始未全部可用
+     * 系统中的最大可用资源，初始未全部可用
      */
     int[] available = {32,34,34};
     /**

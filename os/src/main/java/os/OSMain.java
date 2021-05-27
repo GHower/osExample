@@ -3,27 +3,25 @@ package os;
 
 import os.enums.MyStatus;
 import os.model.entity.*;
-import os.service.BankService;
-import os.service.JobService;
-import os.service.ProcessService;
-import os.service.impl.BankServiceImpl;
-import os.service.impl.JobServiceImpl;
-import os.service.impl.ProcessServiceImpl;
+import os.service.*;
+import os.service.impl.*;
 
 import java.util.*;
 
 public class OSMain {
-    static Map<MyStatus, List<MyPCB>> innerQueue=null;
-    static Map<MyStatus, List<MyJCB>> outsideQueue=null;
+    public static Map<MyStatus, LinkedList<MyPCB>> innerQueue=null;
+    public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue=null;
     JobService jobService= new JobServiceImpl();
     ProcessService processService= new ProcessServiceImpl();
     BankService bankService = new BankServiceImpl();
+    DispatchService scheduleService = new DispatchServiceImpl();
+    MemoryService memoryService = new MemoryServiceImpl();
 
     public static void main(String[] args) {
 
-//        OSMain osMain = new OSMain();
-//        osMain.init();
-//        osMain.run();
+        OSMain osMain = new OSMain();
+        osMain.init();
+        osMain.run();
 
 
     }
@@ -32,51 +30,64 @@ public class OSMain {
      */
     public void run(){
         // 生成测试的jcb
-        List<MyJCB> myJCBS = jobService.testJCB();
-        // 更新 后备作业 队列
-        outsideQueue.put(MyStatus.BACK,myJCBS);
+        LinkedList<MyJCB> myJCBS = jobService.testJCB();
+        // 更新 后备作业 队列，按FCFS放入
+        outsideQueue.put(MyStatus.BACK,scheduleService.FCFS(myJCBS));
 
-        List<MyProcess> myProcesses = new ArrayList<>();
-        List<MyPCB> myPCBS = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            List<MyResource> myResourceList = new ArrayList<>();
-            List<MyResource> myResourceList1 = new ArrayList<>();
-            MyPCB myPCB = new MyPCB();
-            MyProcess myProcess = new MyProcess();
-            myPCB.setPid(i);
-            myProcess.setId(i);
-            for (int j = 0; j < 5; j++) {
-                MyResource myResource = new MyResource();
-                myResource.setName("r"+j);
-                myResource.setNumber(3);
-                myResourceList.add(myResource);
-            }
-            for (int j = 0; j < 5; j++) {
-                MyResource myResource = new MyResource();
-                myResource.setName("r"+j);
-                myResource.setNumber(7);
-                myResourceList1.add(myResource);
-            }
-            myProcess.setAllocation(myResourceList);
-            myProcess.setMax(myResourceList1);
-            myPCBS.add(myPCB);
-            myProcesses.add(myProcess);
+        // 取出队首,同时移除
+        MyJCB myJCB = outsideQueue.get(MyStatus.BACK).getFirst();
+        outsideQueue.get(MyStatus.BACK).removeFirst();
+
+        // 内存可以分配
+        if (memoryService.hasAllocation(myJCB)) {
+            // 创建进程
+            System.out.println(processService.testProcess(myJCB));
+            // todo：分配PCB
+
+            System.out.println(outsideQueue.get(MyStatus.BACK));
         }
 
-        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
-//        bankService.printSystemVariable();
-        MyRequest myRequest = new MyRequest();
-        myRequest.setId(3);
-
-        List<MyResource> myResourceList = new ArrayList<>();
-        for (int j = 0; j < 5; j++) {
-            MyResource myResource = new MyResource();
-            myResource.setName("p"+j);
-            myResource.setNumber(2);
-            myResourceList.add(myResource);
-        }
-        myRequest.setRequest(myResourceList);
-        System.out.println(bankService.setRequest(myRequest));
+//        List<MyProcess> myProcesses = new ArrayList<>();
+//        List<MyPCB> myPCBS = new ArrayList<>();
+//        for (int i = 0; i < 10; i++) {
+//            List<MyResource> myResourceList = new ArrayList<>();
+//            List<MyResource> myResourceList1 = new ArrayList<>();
+//            MyPCB myPCB = new MyPCB();
+//            MyProcess myProcess = new MyProcess();
+//            myPCB.setPid(i);
+//            myProcess.setId(i);
+//            for (int j = 0; j < 5; j++) {
+//                MyResource myResource = new MyResource();
+//                myResource.setName("r"+j);
+//                myResource.setNumber(3);
+//                myResourceList.add(myResource);
+//            }
+//            for (int j = 0; j < 5; j++) {
+//                MyResource myResource = new MyResource();
+//                myResource.setName("r"+j);
+//                myResource.setNumber(7);
+//                myResourceList1.add(myResource);
+//            }
+//            myProcess.setAllocation(myResourceList);
+//            myProcess.setMax(myResourceList1);
+//            myPCBS.add(myPCB);
+//            myProcesses.add(myProcess);
+//        }
+//
+//        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
+////        bankService.printSystemVariable();
+//        MyRequest myRequest = new MyRequest();
+//        myRequest.setId(3);
+//
+//        List<MyResource> myResourceList = new ArrayList<>();
+//        for (int j = 0; j < 5; j++) {
+//            MyResource myResource = new MyResource();
+//            myResource.setName("p"+j);
+//            myResource.setNumber(2);
+//            myResourceList.add(myResource);
+//        }
+//        myRequest.setRequest(myResourceList);
+//        System.out.println(bankService.setRequest(myRequest));
 //      bankService.BankerAlgorithm();
     }
     /**
@@ -95,12 +106,12 @@ public class OSMain {
         innerQueue = new HashMap<>();
         outsideQueue = new HashMap<>();
 
-        List<MyJCB> backList = new ArrayList<>();
+        LinkedList<MyJCB> backList = new LinkedList<>();
 
-        List<MyPCB> readyList = new ArrayList<>();
-        List<MyPCB> runList = new ArrayList<>();
-        List<MyPCB> waitList = new ArrayList<>();
-        List<MyPCB> finishList = new ArrayList<>();
+        LinkedList<MyPCB> readyList = new LinkedList<>();
+        LinkedList<MyPCB> runList = new LinkedList<>();
+        LinkedList<MyPCB> waitList = new LinkedList<>();
+        LinkedList<MyPCB> finishList = new LinkedList<>();
 
         outsideQueue.put(MyStatus.BACK,backList);
         innerQueue.put(MyStatus.READY,readyList);

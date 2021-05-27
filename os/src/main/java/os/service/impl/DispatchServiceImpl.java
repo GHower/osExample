@@ -1,11 +1,11 @@
 package os.service.impl;
 
+import os.model.entity.MyJCB;
 import os.model.entity.MyPCB;
-import os.model.entity.MyProcess;
-import os.model.entity.MyResource;
-import os.service.ScheduleService;
+import os.service.DispatchService;
 
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,47 +14,35 @@ import java.util.stream.Collectors;
  * fixme: 时间数据应该由CPU回响过来，而不是手动输入
  * fixme: 步骤执行，每个时间单位执行一个。
  */
-public class ScheduleServiceImpl implements ScheduleService {
+public class DispatchServiceImpl implements DispatchService {
     /**
      * 先来先服务
      * @param pcbs 需要计算的pcb数组,PCB中按到达时间优先
      * @return 先来先服务结果
      */
-    public List<MyPCB> FCFS(List<MyPCB> pcbs) {
+    public LinkedList<MyJCB> FCFS(LinkedList<MyJCB> pcbs) {
         // 先对输入数组排序
-        List<MyPCB> result = pcbs.stream()
-                .sorted(Comparator.comparingDouble(MyPCB::getArriveTime))
-                .collect(Collectors.toList());
+        LinkedList<MyJCB> result =  pcbs.stream()
+                .sorted(Comparator.comparingDouble(MyJCB::getArriveTime))
+                .collect(Collectors.toCollection(LinkedList::new));
         return result;
     }
 
     /**
-     * TODO:短作业优先
-     *
+     * TODO:短作业优先，计算各个时间信息
      * @param pcbs 需要计算的pcb数组,PCB中按运行时间优先
      * @return 短作业优先调整后的pcb数组
      */
-    public List<MyPCB> SJF(List<MyPCB> pcbs) {
-        /*List<MyPCB> list = null;
-        if (pcbs != null || pcbs.size() > 0){
-            list = pcbs.stream().sorted((e1,e2)->{
-                        return (int) (e1.get()-e2.getRunTime());
-                    }
-            ).collect(Collectors.toList());
-        }*/
-
-//        return list;
+    public LinkedList<MyPCB> SJF(LinkedList<MyPCB> pcbs){
         return null;
     }
 
     /**
-     * TODO:高响应比优先
-     *
+     * TODO:高响应比优先，计算各个时间信息
      * @param pcbs 需要计算的pcb数组,PCB中按运行时间优先
      * @return 高响应比优先调整后的pcb数组
      */
-    public List<MyPCB> FPF(List<MyPCB> pcbs) {
-
+    public LinkedList<MyPCB> FPF(LinkedList<MyPCB> pcbs){
         return null;
     }
 
@@ -64,7 +52,7 @@ public class ScheduleServiceImpl implements ScheduleService {
      * @param pcbs 需要计算的pcb数组
      * @return 时间片轮转算法调整后的pcb数组
      */
-    public List<MyPCB> RR(List<MyPCB> pcbs) {
+    public LinkedList<MyPCB> RR(LinkedList<MyPCB> pcbs) {
 
         return null;
     }
@@ -73,12 +61,14 @@ public class ScheduleServiceImpl implements ScheduleService {
      * 打印输出传入的pcbs数组
      * todo: 重载多种输出格式
      */
-    public void display(List<MyPCB> pcbs) {
+    public void display(LinkedList<MyPCB> pcbs) {
         System.out.println("进程pid\t提交时间\t开始时间\t等待时间\t完成时间\t运行时间\t周转时间\t带权周转时间");
         displayRunInfo(pcbs);
     }
 
+    public void jobSchedule(){
 
+    }
 
     /**
      * 输出某个进程的运行信息

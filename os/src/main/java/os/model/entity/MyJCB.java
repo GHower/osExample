@@ -47,11 +47,17 @@ public class MyJCB {
      * 作业需要的资源集合
      */
     private List<MyResource> resources;
+
+    /**
+     * 完成这个作业需要的内存大小
+     */
+    private Integer size;
+
     // 下面是作业的运行情况,最后在做这部分
 //    /**
 //     * 到达时间
 //     */
-//    private Double arriveTime = 0D;
+    private Double arriveTime = 0D;
 //    /**
 //     * 开始时间
 //     */

@@ -2,6 +2,7 @@ package os.service;
 
 import os.model.entity.MyJCB;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -13,5 +14,5 @@ public interface JobService {
      * 随机生成测试JCB
      * @return JCB数组
      */
-    List<MyJCB> testJCB();
+    LinkedList<MyJCB> testJCB();
 }

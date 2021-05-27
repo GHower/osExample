@@ -16,11 +16,11 @@ public interface MemoryService {
     /**
      * todo: 判断内存是否可以分配
      *
-     * @param myPCB 传入当前需要分配内存的进程
+     * @param myJCB 传入当前需要分配内存的进程
      * @return 是否可以给这个进程分配内存
      */
+    public boolean hasAllocation(MyJCB myJCB);
     public boolean hasAllocation(MyPCB myPCB);
-
     /**
      * todo: 分配内存的操作
      *

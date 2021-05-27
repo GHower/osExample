@@ -16,8 +16,8 @@ public class JobServiceImpl implements JobService {
      *
      * @return JCB数组
      */
-    public List<MyJCB> testJCB() {
-        List<MyJCB> myJCBS = new LinkedList<>();
+    public LinkedList<MyJCB> testJCB() {
+        LinkedList<MyJCB> myJCBS = new LinkedList<>();
         for(int i=1;i<=3;i++){
             MyJCB myJCB = new MyJCB();
             myJCB.setId(i);
@@ -25,7 +25,8 @@ public class JobServiceImpl implements JobService {
             myJCB.setName("J"+i);
             myJCB.setPriority(1);
             myJCB.setType(1);
-            myJCBS.add(myJCB);
+            myJCB.setArriveTime(Math.floor(Math.random()*3));
+            myJCBS.addLast(myJCB);
         }
         return myJCBS;
     }
