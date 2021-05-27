@@ -3,20 +3,18 @@ package os.service.impl;
 import os.model.entity.MyPCB;
 import os.model.entity.MyProcess;
 import os.model.entity.MyResource;
-import os.service.ProcessService;
+import os.service.ScheduleService;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 进程服务
+ * 调度服务，这里写所有的调度操作，包括 进程调度到不同队列等等
+ * fixme: 时间数据应该由CPU回响过来，而不是手动输入
+ * fixme: 步骤执行，每个时间单位执行一个。
  */
-public class ProcessServiceImpl implements ProcessService {
+public class ScheduleServiceImpl implements ScheduleService {
     /**
      * 先来先服务
      * @param pcbs 需要计算的pcb数组,PCB中按到达时间优先

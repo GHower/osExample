@@ -43,6 +43,7 @@ public class MyJCB extends MyCB{
      * todo:作业的类型,目前统一为非交互式的普通类型，一个作业对应一个进程,且可以直接估计或输入运行时间
      */
     private Integer type;
+
     /**
      * 作业需要的资源集合
      */
