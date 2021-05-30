@@ -29,7 +29,14 @@ public class MyPCB {
      * 状态，对应枚举的状态,同状态的放在同一队列，如就绪队列
      */
     private MyStatus status;
-
+    /**
+     * 当前进程在内存中的起始地址
+     */
+    private Integer Mstart;
+    /**
+     * 当前进程大小
+     */
+    private Integer size;
     /**
      * 优先级标识，可能用得上
      */

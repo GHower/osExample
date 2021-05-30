@@ -56,48 +56,54 @@ public class OSMain {
         System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
         System.out.println("等待队列：" + innerQueue.get(MyStatus.WAIT));
 
-//        List<MyProcess> myProcesses = new ArrayList<>();
-//        List<MyPCB> myPCBS = new ArrayList<>();
-//        for (int i = 0; i < 10; i++) {
-//            List<MyResource> myResourceList = new ArrayList<>();
-//            List<MyResource> myResourceList1 = new ArrayList<>();
-//            MyPCB myPCB = new MyPCB();
-//            MyProcess myProcess = new MyProcess();
-//            myPCB.setPid(i);
-//            myProcess.setId(i);
-//            for (int j = 0; j < 5; j++) {
-//                MyResource myResource = new MyResource();
-//                myResource.setName("r"+j);
-//                myResource.setNumber(3);
-//                myResourceList.add(myResource);
-//            }
-//            for (int j = 0; j < 5; j++) {
-//                MyResource myResource = new MyResource();
-//                myResource.setName("r"+j);
-//                myResource.setNumber(7);
-//                myResourceList1.add(myResource);
-//            }
-//            myProcess.setAllocation(myResourceList);
-//            myProcess.setMax(myResourceList1);
-//            myPCBS.add(myPCB);
-//            myProcesses.add(myProcess);
-//        }
-//
-//        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
-////        bankService.printSystemVariable();
-//        MyRequest myRequest = new MyRequest();
-//        myRequest.setId(3);
-//
-//        List<MyResource> myResourceList = new ArrayList<>();
-//        for (int j = 0; j < 5; j++) {
-//            MyResource myResource = new MyResource();
-//            myResource.setName("p"+j);
-//            myResource.setNumber(2);
-//            myResourceList.add(myResource);
-//        }
-//        myRequest.setRequest(myResourceList);
-//        System.out.println(bankService.setRequest(myRequest));
-//      bankService.BankerAlgorithm();
+        List<MyProcess> myProcesses = new ArrayList<>();
+        List<MyPCB> myPCBS = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            List<MyResource> myResourceList = new ArrayList<>();
+            List<MyResource> myResourceList1 = new ArrayList<>();
+            MyPCB myPCB = new MyPCB();
+            MyProcess myProcess = new MyProcess();
+            myPCB.setPid(i);
+            myProcess.setId(i);
+            for (int j = 0; j < 5; j++) {
+                MyResource myResource = new MyResource();
+                myResource.setName("r"+j);
+                myResource.setNumber(3);
+                myResourceList.add(myResource);
+            }
+            for (int j = 0; j < 5; j++) {
+                MyResource myResource = new MyResource();
+                myResource.setName("r"+j);
+                myResource.setNumber(7);
+                myResourceList1.add(myResource);
+            }
+            myProcess.setAllocation(myResourceList);
+            myProcess.setMax(myResourceList1);
+            myPCBS.add(myPCB);
+            myProcesses.add(myProcess);
+        }
+
+        System.out.println(bankService.checkSafe(myPCBS,myProcesses,available));
+        for (int i = 0; i < available.length; i++) {
+            System.out.println(available[i]);
+        }
+//        bankService.printSystemVariable();
+        MyRequest myRequest = new MyRequest();
+        myRequest.setId(3);
+
+        List<MyResource> myResourceList = new ArrayList<>();
+        for (int j = 0; j < 5; j++) {
+            MyResource myResource = new MyResource();
+            myResource.setName("p"+j);
+            myResource.setNumber(2);
+            myResourceList.add(myResource);
+        }
+        myRequest.setRequest(myResourceList);
+        System.out.println(bankService.setRequest(myRequest,available));
+        for (int i = 0; i < available.length; i++) {
+            System.out.println(available[i]);
+        }
+
     }
 
     /**

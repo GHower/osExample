@@ -7,7 +7,6 @@ import os.model.entity.MyResource;
 import os.service.BankService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 /**
@@ -15,9 +14,10 @@ import java.util.List;
  */
 public class BankServiceImpl implements BankService {
     /**
-     * 系统中的最大可用资源，初始未全部可用
+     * 可用资源，初始未全部可用
      */
-    int[] available = {32,34,34};
+//    int[] available = {32,34,34};
+    int[] available ;
     /**
      * 最大需求矩阵，每个进程各类资源最大需要
      */
@@ -59,8 +59,6 @@ public class BankServiceImpl implements BankService {
      */
     int[] req= {1,1};
 
-
-
     /**
      * 初始化数据结构
      */
@@ -70,16 +68,16 @@ public class BankServiceImpl implements BankService {
         setNeed();*/
     }
 
-    /**
-     *
-     * 获取各进程申请资源的信息
-     *      进程最大资源需求量 max
-     *      进程已占有资源 allocation（谁来指定）
-     *      系统指定可用资源 available (目前只能写三类资源)
-     *  根据pcbs里面的每一个进程的pid找到对应的MyProcess，,根据每一个Myprocess获取到进程的占有资源情况，然后统计出每类资源的占有总数
-     */
     @Override
-    public boolean checkSafe(List<MyPCB> pcbs , List<MyProcess> allocation) {
+    public boolean checkSafe(List<MyPCB> pcbs , List<MyProcess> allocation,int[] ava) {
+        /**
+         *
+         * 获取各进程申请资源的信息
+         *      进程最大资源需求量 max
+         *      进程已占有资源 allocation（谁来指定）
+         *      系统指定可用资源 available (目前只能写三类资源)
+         *  根据pcbs里面的每一个进程的pid找到对应的MyProcess，,根据每一个Myprocess获取到进程的占有资源情况，然后统计出每类资源的占有总数
+         */
         List<MyProcess> processList = new ArrayList<>();
         for (MyPCB pcb : pcbs) {
             Integer pcbPid = pcb.getPid();
@@ -104,7 +102,7 @@ public class BankServiceImpl implements BankService {
                 myAllocation = process.getAllocation();
                 myMax = process.getMax();
                 if (tmp==1){
-                    //初始化allocation矩阵和max矩阵
+                    //初始化allocation矩阵
                     setAllocation(processList,myAllocation);
                     tmp=2;
                 }
@@ -156,9 +154,18 @@ public class BankServiceImpl implements BankService {
             }
             j++;
         }
-
+        /**
+         * 设置available矩阵
+         */
+        this.setAvailable(ava);
+        /**
+         * 设置work矩阵
+         */
+        this.setWork();
+        /**
+         * 设置need矩阵
+         */
         this.setNeed();
-        this.setAvailable();
         System.out.println(map);
         printSystemVariable();
         return SecurityAlgorithm();
@@ -198,13 +205,14 @@ public class BankServiceImpl implements BankService {
     /**
      * 设置Available矩阵
      */
-    private  void setAvailable(){
+    private  void setAvailable(int[] available){
         System.out.println("setAvailable");
         for (int i = 0; i < available.length; i++) {
             for (int j = 0; j < max.length; j++) {
                 available[i] = available[i] - allocation[j][i];
             }
         }
+        this.available = available;
 
     }
 
@@ -215,7 +223,7 @@ public class BankServiceImpl implements BankService {
     private  void  setAllocation(List<MyProcess> processList,List<MyResource> resource){
         this.allocation=new int[processList.size()][resource.size()];
         this.max=new int[processList.size()][resource.size()];
-        this.setWork();
+
 
 
     }
@@ -255,7 +263,9 @@ public class BankServiceImpl implements BankService {
     public boolean SecurityAlgorithm() {
         Boolean Finish[] = new Boolean[max.length];//初始化Finish
         //设值
-        Arrays.fill(Finish, false);
+        for (int i = 0; i < Finish.length; i++) {
+            Finish[i]=false;
+        }
 
         int count = 0;//完成进程数
         int circle=0;//循环圈数
@@ -379,7 +389,7 @@ public class BankServiceImpl implements BankService {
      * 设置请求资源量Request
      */
     @Override
-    public boolean setRequest(MyRequest request) {
+    public boolean setRequest(MyRequest request,int[] ava) {
 
         List<MyResource> myResources = request.getRequest();
 
