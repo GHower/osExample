@@ -44,7 +44,7 @@ public class ProcessServiceImpl implements ProcessService {
             if(i%3!=0){
                 myProcess.setMax(testResource(3));
                 myProcess.setAllocation(testResource(3,myProcess.getMax()));
-                // 部分进程无需申请资源
+                // 部分进程某时刻不申请资源
                 myProcess.setNeed(testResource(3,myProcess.getAllocation()));
             }
             result.add(myProcess);
