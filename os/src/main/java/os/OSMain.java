@@ -6,8 +6,8 @@ import os.model.entity.*;
 import os.service.*;
 import os.service.impl.*;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 服务和队列都置为静态，实际上这是内核的东西，这里做模拟就不管了
@@ -18,7 +18,7 @@ public class OSMain {
     public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue = null; // 模拟外存
     public static MyPCBPool pcbPool = null;// pcb池
     public static long time = 0;//当前系统时刻,用时间戳表示
-    public static Integer max; // 最大内存
+    public static Integer MEMORY_MAX_SIZE = 1024 * 1024 * 1024; // 最大内存,单位bit
     //    public static List<MyResource> available = null;// 系统可用资源
     public static int[] available = {32, 34, 34};// 系统可用资源
 
@@ -67,13 +67,13 @@ public class OSMain {
             myProcess.setId(i);
             for (int j = 0; j < 5; j++) {
                 MyResource myResource = new MyResource();
-                myResource.setName("r"+j);
+                myResource.setName("r" + j);
                 myResource.setNumber(3);
                 myResourceList.add(myResource);
             }
             for (int j = 0; j < 5; j++) {
                 MyResource myResource = new MyResource();
-                myResource.setName("r"+j);
+                myResource.setName("r" + j);
                 myResource.setNumber(7);
                 myResourceList1.add(myResource);
             }
@@ -83,7 +83,7 @@ public class OSMain {
             myProcesses.add(myProcess);
         }
 
-        System.out.println(bankService.checkSafe(myPCBS,myProcesses,available));
+        System.out.println(bankService.checkSafe(myPCBS, myProcesses, available));
         for (int i = 0; i < available.length; i++) {
             System.out.println(available[i]);
         }
@@ -94,12 +94,12 @@ public class OSMain {
         List<MyResource> myResourceList = new ArrayList<>();
         for (int j = 0; j < 5; j++) {
             MyResource myResource = new MyResource();
-            myResource.setName("p"+j);
+            myResource.setName("p" + j);
             myResource.setNumber(2);
             myResourceList.add(myResource);
         }
         myRequest.setRequest(myResourceList);
-        System.out.println(bankService.setRequest(myRequest,available));
+        System.out.println(bankService.setRequest(myRequest, available));
         for (int i = 0; i < available.length; i++) {
             System.out.println(available[i]);
         }
@@ -148,15 +148,36 @@ public class OSMain {
         List<MyResource> request = process.getRequests();
         if (request != null) {
             // todo: 调用银行家算法
-            if(true){
+            if (true) {
                 // 其他处理....
-
+//                List<MyResource> allocation = process.getAllocation();
+//                List<MyResource> newAllocation = allocation.stream().map(e -> {
+//                    // 修改已分配资源
+//                    e.setNumber(e.getNumber() + processService.getRNumByRName(process, e.getName()));
+//                    // 修改系统全局资源
+//                    return e;
+//                }).collect(Collectors.toList());
+//                process.setAllocation(newAllocation);
                 // 进入下一时间单位
                 timeNext();
-            }else{
+            } else {
                 dispatchService.blockDispatch();
             }
         }
+    }
+
+    /**
+     * todo: 让运行中的进程正常完成
+     */
+    void finishProcess() {
+
+    }
+
+    /**
+     * todo: 强行中断运行中的进程,释放已分配资源，不再运行，该进程可能没有执行完
+     */
+    void InterruptProcess() {
+
     }
 
     /**

@@ -67,6 +67,16 @@ public class ProcessServiceImpl implements ProcessService {
         return null;
     }
 
+    @Override
+    public int getRNumByRName(MyProcess process, String name) {
+        List<MyResource> requests = process.getRequests();
+        if(requests !=null){
+            MyResource myResource = requests.stream().filter(e -> e.getName().equals(name)).findFirst().get();
+            return myResource.getNumber();
+        }
+        return 0;
+    }
+
     // 生成若干个资源
     private List<MyResource> testResource(int n){
         List<MyResource> result = new ArrayList<>();
@@ -79,6 +89,7 @@ public class ProcessServiceImpl implements ProcessService {
         }
         return result;
     }
+
     // 生成若干个资源,含限制
     private List<MyResource> testResource(int n,List<MyResource> resources){
         List<MyResource> result = new ArrayList<>();

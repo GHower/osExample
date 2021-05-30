@@ -76,7 +76,6 @@ public class BankServiceImpl implements BankService {
     @Override
     public boolean checkSafe(List<MyPCB> pcbs , List<MyProcess> allocation,int[] ava) {
         /**
-         *
          * 获取各进程申请资源的信息
          *      进程最大资源需求量 max
          *      进程已占有资源 allocation（谁来指定）

@@ -16,7 +16,6 @@ public interface BankService {
      * @param pcbs 某时刻的进程数组，对资源请求
      * @return 逻辑值，存在一个安全序列就返回<code> true </code>
      *
-     *
      */
     public boolean checkSafe(List<MyPCB> pcbs, List<MyProcess> allocation,int[] ava);
 
