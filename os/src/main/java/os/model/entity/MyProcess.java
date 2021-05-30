@@ -32,6 +32,13 @@ public class MyProcess {
      */
     private List<MyResource> need;
 
+    /**
+     * 进程某时刻请求的资源，本次资源请求被分配后这个值置为null,阻塞不改变这个值
+     * 1. 作为阻塞条件,用于银行家
+     * 3. 用于解除阻塞
+     */
+    private List<MyResource> requests;
+
 /*    @Override
     public boolean equals(Object o) {
         if (this == o) return true;

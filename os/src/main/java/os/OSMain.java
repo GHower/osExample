@@ -19,8 +19,8 @@ public class OSMain {
     public static MyPCBPool pcbPool = null;// pcb池
     public static long time = 0;//当前系统时刻,用时间戳表示
     public static Integer max; // 最大内存
-//    public static List<MyResource> available = null;// 系统可用资源
-    public static int[] available = {32,34,34};// 系统可用资源
+    //    public static List<MyResource> available = null;// 系统可用资源
+    public static int[] available = {32, 34, 34};// 系统可用资源
 
     public static JobService jobService = new JobServiceImpl();// 与作业相关的服务
     public static ProcessService processService = new ProcessServiceImpl();// 进程相关的服务
@@ -126,23 +126,33 @@ public class OSMain {
     }
 
     /**
-     *  todo： 进入下一时间单位
-      */
-    void timeNext(){
-
+     * todo： 进入下一时间单位
+     */
+    void timeNext() {
+        time++;
     }
 
     /**
      * 模拟执行进程
      */
-    void runProcess(){
+    void runProcess() {
         LinkedList<MyPCB> runList = innerQueue.get(MyStatus.RUN);
         MyPCB first = runList.getFirst();
         MyProcess process = processService.getProcessByPid(first.getPid());
-        List<MyResource> need = process.getNeed();
+        List<MyResource> request = process.getRequests();
+        if (request != null) {
+            // todo: 调用银行家算法
+            if(true){
+                // 其他处理....
 
-
+                // 进入下一时间单位
+                timeNext();
+            }else{
+                dispatchService.blockDispatch();
+            }
+        }
     }
+
     /**
      * 进程调度的输入过程，命令行黑框方式
      * fixme: 从文件或数据库读取，更快生成。或者线程方式随机时间按一定规律随机生成
