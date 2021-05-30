@@ -23,4 +23,9 @@ public interface ProcessService {
     // 一个作业生成若干进程,简单一点，这里只做一个
     public MyProcess testProcess(MyJCB myJCB);
 
+    /**
+     * 通过pid获取pcb
+     * @return
+     */
+    MyPCB getPcbByPid(Integer pid);
 }

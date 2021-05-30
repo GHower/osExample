@@ -17,8 +17,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
- * 进程服务，提供针对进程的操作方法
+ * 进程服务，提供针对进程的操作方法，不过主要是对pcb的操作
  */
 public class ProcessServiceImpl implements ProcessService {
     @Override
@@ -44,7 +45,16 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public MyProcess testProcess(MyJCB myJCB) {
+        MyProcess myProcess = new MyProcess();
+        myProcess.setName("p"+myJCB.getId());
+        myProcess.setId(OSMain.pcbPool.size()+1); //
+        myProcess.setMax(testResource(2));
+        return myProcess;
+    }
 
+
+    @Override
+    public MyPCB getPcbByPid(Integer pid) {
         return null;
     }
 

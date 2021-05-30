@@ -34,11 +34,18 @@ public interface DispatchService {
     public LinkedList<MyPCB> FPF(LinkedList<MyPCB> pcbs);
 
     /**
+     * 作业调度，执行一次进行以下步骤
+     * 1. 按调度算法取出队首作业,这个作业是wait状态
+     * 2. 为该作业
+     *      2.1 创建进程
+     *      2.2 分配PCB
+     * 3. 修改作业的pid指向、状态，进程和pcb自动产生联系
+     */
+    public boolean jobDispatch();
+    /**
      * 打印输出传入的pcbs数组
      * todo: 重载多种输出格式
      */
     public void display(LinkedList<MyPCB> pcbs);
-
-
 
 }

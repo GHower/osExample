@@ -52,6 +52,10 @@ public class MyJCB {
      * 完成这个作业需要的内存大小
      */
     private Integer size;
+    /**
+     * 作业的状态 1-等待调度 2-运行中 3-已完成
+     */
+    private Integer state;
 
     // 下面是作业的运行情况,最后在做这部分
 //    /**

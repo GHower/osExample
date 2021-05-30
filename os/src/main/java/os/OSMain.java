@@ -8,44 +8,39 @@ import os.service.impl.*;
 
 import java.util.*;
 
+/**
+ * 服务和队列都置为静态，实际上这是内核的东西，这里做模拟就不管了
+ * 先写个屎山出来
+ */
 public class OSMain {
-    public static Map<MyStatus, LinkedList<MyPCB>> innerQueue=null;
-    public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue=null;
-    JobService jobService= new JobServiceImpl();
-    ProcessService processService= new ProcessServiceImpl();
-    BankService bankService = new BankServiceImpl();
-    DispatchService scheduleService = new DispatchServiceImpl();
-    MemoryService memoryService = new MemoryServiceImpl();
+    public static Map<MyStatus, LinkedList<MyPCB>> innerQueue = null; // 模拟内存
+    public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue = null; // 模拟外存
+    public static MyPCBPool pcbPool = null;// pcb池
+    public static int time = 0;//当前系统时刻
+//    public static ; //
+//    public static ; //
+    public static JobService jobService = new JobServiceImpl();
+    public static ProcessService processService = new ProcessServiceImpl();
+    public static BankService bankService = new BankServiceImpl();
+    public static DispatchService dispatchService = new DispatchServiceImpl();
+    public static MemoryService memoryService = new MemoryServiceImpl();
 
     public static void main(String[] args) {
-
         OSMain osMain = new OSMain();
-        osMain.init();
-        osMain.run();
-
-
+        osMain.init();// 初始化、系统参数
+        osMain.run();// 运行函数
     }
+
     /**
      * 在这里写主程序代码，懒得弄静态了
      */
-    public void run(){
+    public void run() {
         // 生成测试的jcb
         LinkedList<MyJCB> myJCBS = jobService.testJCB();
         // 更新 后备作业 队列，按FCFS放入
-        outsideQueue.put(MyStatus.BACK,scheduleService.FCFS(myJCBS));
+        outsideQueue.put(MyStatus.BACK, dispatchService.FCFS(myJCBS));
 
-        // 取出队首,同时移除
-        MyJCB myJCB = outsideQueue.get(MyStatus.BACK).getFirst();
-        outsideQueue.get(MyStatus.BACK).removeFirst();
 
-        // 内存可以分配
-        if (memoryService.hasAllocation(myJCB)) {
-            // 创建进程
-            System.out.println(processService.testProcess(myJCB));
-            // todo：分配PCB
-
-            System.out.println(outsideQueue.get(MyStatus.BACK));
-        }
 
 //        List<MyProcess> myProcesses = new ArrayList<>();
 //        List<MyPCB> myPCBS = new ArrayList<>();
@@ -90,6 +85,7 @@ public class OSMain {
 //        System.out.println(bankService.setRequest(myRequest));
 //      bankService.BankerAlgorithm();
     }
+
     /**
      * 为进程设置资源
      */
@@ -101,10 +97,12 @@ public class OSMain {
      * 初始化
      * 内存中的 就绪、运行、等待、完成 队列
      * 外存中的 后备、挂起 队列
+     * 由于不做磁盘的东西，所以通过hashmap做模拟就行
      */
-    public void init(){
-        innerQueue = new HashMap<>();
-        outsideQueue = new HashMap<>();
+    public void init() {
+        innerQueue = new HashMap<>(); // 内存相关队列
+        outsideQueue = new HashMap<>(); // 外存相关队列 map
+        pcbPool = new MyPCBPool(10); // pcb池 todo: 大小未定
 
         LinkedList<MyJCB> backList = new LinkedList<>();
 
@@ -113,17 +111,18 @@ public class OSMain {
         LinkedList<MyPCB> waitList = new LinkedList<>();
         LinkedList<MyPCB> finishList = new LinkedList<>();
 
-        outsideQueue.put(MyStatus.BACK,backList);
-        innerQueue.put(MyStatus.READY,readyList);
-        innerQueue.put(MyStatus.RUN,runList);
-        innerQueue.put(MyStatus.WAIT,waitList);
-        innerQueue.put(MyStatus.FINISH,finishList);
+        outsideQueue.put(MyStatus.BACK, backList);
+        innerQueue.put(MyStatus.READY, readyList);
+        innerQueue.put(MyStatus.RUN, runList);
+        innerQueue.put(MyStatus.WAIT, waitList);
+        innerQueue.put(MyStatus.FINISH, finishList);
     }
+
     /**
      * 进程调度的输入过程，命令行黑框方式
      * fixme: 从文件或数据库读取，更快生成。或者线程方式随机时间按一定规律随机生成
      */
-    public void processIn(){
+    public void processIn() {
 //        Scanner scanner = new Scanner(System.in);
 //        System.out.print("输入进程数量：");
 //        int i = scanner.nextInt();

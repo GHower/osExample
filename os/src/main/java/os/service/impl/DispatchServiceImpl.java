@@ -1,7 +1,10 @@
 package os.service.impl;
 
+import os.OSMain;
+import os.enums.MyStatus;
 import os.model.entity.MyJCB;
 import os.model.entity.MyPCB;
+import os.model.entity.MyProcess;
 import os.service.DispatchService;
 
 import java.util.Comparator;
@@ -23,7 +26,8 @@ public class DispatchServiceImpl implements DispatchService {
     public LinkedList<MyJCB> FCFS(LinkedList<MyJCB> pcbs) {
         // 先对输入数组排序
         LinkedList<MyJCB> result =  pcbs.stream()
-                .sorted(Comparator.comparingDouble(MyJCB::getArriveTime))
+                .sorted(Comparator.comparingDouble(MyJCB::getState)
+                        .thenComparing(MyJCB::getArriveTime))
                 .collect(Collectors.toCollection(LinkedList::new));
         return result;
     }
@@ -44,6 +48,31 @@ public class DispatchServiceImpl implements DispatchService {
      */
     public LinkedList<MyPCB> FPF(LinkedList<MyPCB> pcbs){
         return null;
+    }
+
+    @Override
+    public boolean jobDispatch() {
+        // 取出队首,同时置队首状态为running
+        MyJCB myJCB = OSMain.outsideQueue.get(MyStatus.BACK).getFirst();
+        // 内存可以分配和pcb池有空的
+        if (OSMain.memoryService.hasAllocation(myJCB)
+                && OSMain.pcbPool.hasNext()
+                && myJCB.getState() == 1) {
+            // 创建进程
+            MyProcess myProcess = OSMain.processService.testProcess(myJCB);
+            System.out.println(myProcess);
+
+            // todo: 修改内存
+
+            // todo：分配PCB
+            MyPCB myPCB = OSMain.pcbPool.allocation(myProcess,myJCB);
+            // 修改队首为2 running状态
+            myJCB.setState(2);
+            myJCB.setPid(myProcess.getId());
+            OSMain.outsideQueue.get(MyStatus.BACK).set(0, myJCB);
+            System.out.println(OSMain.outsideQueue.get(MyStatus.BACK));
+        }
+        return true;
     }
 
     /**
