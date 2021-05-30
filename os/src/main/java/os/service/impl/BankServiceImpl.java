@@ -18,6 +18,11 @@ public class BankServiceImpl implements BankService {
      */
 //    int[] available = {32,34,34};
     int[] available ;
+
+    /**
+     * 最大可用资源
+     */
+    int[] maxAva  ;
     /**
      * 最大需求矩阵，每个进程各类资源最大需要
      */
@@ -157,7 +162,7 @@ public class BankServiceImpl implements BankService {
         /**
          * 设置available矩阵
          */
-        this.setAvailable(ava);
+        this.setAvailable(ava,false);
         /**
          * 设置work矩阵
          */
@@ -205,14 +210,31 @@ public class BankServiceImpl implements BankService {
     /**
      * 设置Available矩阵
      */
-    private  void setAvailable(int[] available){
-        System.out.println("setAvailable");
-        for (int i = 0; i < available.length; i++) {
-            for (int j = 0; j < max.length; j++) {
-                available[i] = available[i] - allocation[j][i];
+    private  void setAvailable(int[] ava,boolean flag){
+        if (!flag){
+            this.available=ava;
+            this.maxAva=new int[ava.length];
+            for (int i = 0 ; i<ava.length;i++){
+                int tmp = ava[i];
+                maxAva[i]=tmp;
+            }
+
+            System.out.println("setAvailable");
+            for (int i = 0; i < available.length; i++) {
+                for (int j = 0; j < max.length; j++) {
+                    available[i] = available[i] - allocation[j][i];
+                }
+            }
+            for (int i = 0; i < maxAva.length; i++) {
+                System.out.println(maxAva[i]+"====================");
+            }
+
+        }else {
+            for (int i = 0 ; i<ava.length;i++){
+                int tmp = ava[i];
+                available[i]=tmp;
             }
         }
-        this.available = available;
 
     }
 
@@ -223,8 +245,6 @@ public class BankServiceImpl implements BankService {
     private  void  setAllocation(List<MyProcess> processList,List<MyResource> resource){
         this.allocation=new int[processList.size()][resource.size()];
         this.max=new int[processList.size()][resource.size()];
-
-
 
     }
     /**
@@ -322,6 +342,7 @@ public class BankServiceImpl implements BankService {
                     System.out.print("P"+S[i]+" ");
                 }
                 System.out.println("故当前可分配！");
+                setAvailable(this.maxAva,true);
                 return true;//跳出循环
             }
             if(count<circle){//判断完成进程数是否小于循环圈数
