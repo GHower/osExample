@@ -15,7 +15,10 @@ public interface ProcessService {
      * 通过pid反向找到jcb
      */
     public MyJCB getJcbByPid(Integer pid);
-
+    /**
+     * 通过pid从内存中找到进程
+     */
+    public MyProcess getProcessByPid(Integer pid);
     /**
      * 生成测试的Process,随机生成
      */

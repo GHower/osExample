@@ -2,10 +2,8 @@ package os.service.impl;
 
 import os.OSMain;
 import os.enums.MyStatus;
-import os.model.entity.MyJCB;
-import os.model.entity.MyPCB;
-import os.model.entity.MyProcess;
-import os.model.entity.MyResource;
+import os.model.entity.*;
+import os.service.MemoryService;
 import os.service.ProcessService;
 
 import java.time.Instant;
@@ -22,9 +20,16 @@ import java.util.stream.Collectors;
  * 进程服务，提供针对进程的操作方法，不过主要是对pcb的操作
  */
 public class ProcessServiceImpl implements ProcessService {
+    MyPCBPool myPCBPool = OSMain.pcbPool;
+    MemoryService memoryService = OSMain.memoryService;
     @Override
     public MyJCB getJcbByPid(Integer pid) {
         return null;
+    }
+
+    @Override
+    public MyProcess getProcessByPid(Integer pid) {
+        return memoryService.getProcessByPid(pid);
     }
 
     @Override
@@ -35,9 +40,13 @@ public class ProcessServiceImpl implements ProcessService {
             MyProcess myProcess = new MyProcess();
             myProcess.setName("p"+i);
             myProcess.setId(i);
-            myProcess.setMax(testResource(2));
-            myProcess.setAllocation(testResource(2,myProcess.getMax()));
-//            myProcess.setNeed(testResource(2,myProcess.getAllocation()));
+            //fixme: need不断修改
+            if(i%3!=0){
+                myProcess.setMax(testResource(3));
+                myProcess.setAllocation(testResource(3,myProcess.getMax()));
+                // 部分进程无需申请资源
+                myProcess.setNeed(testResource(3,myProcess.getAllocation()));
+            }
             result.add(myProcess);
         }
         return result;

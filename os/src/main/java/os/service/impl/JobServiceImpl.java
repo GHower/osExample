@@ -23,10 +23,12 @@ public class JobServiceImpl implements JobService {
             myJCB.setId(i);
             myJCB.setUsername("ghower");
             myJCB.setName("J"+i);
-            myJCB.setPriority(1);
+            myJCB.setPriority((int) (Math.floor(Math.random()*5)+1));
             myJCB.setType(1);
-            myJCB.setState((int) Math.floor(Math.random()*3));
-            myJCB.setArriveTime(Math.floor(Math.random()*3));
+//            myJCB.setState((int) Math.floor(Math.random()*3)+1);
+            myJCB.setState(1);
+            myJCB.setArriveTime(0L);
+//            myJCB.setArriveTime((long) Math.floor(Math.random()*5));
             myJCBS.addLast(myJCB);
         }
         return myJCBS;

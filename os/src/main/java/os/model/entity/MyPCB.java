@@ -17,7 +17,10 @@ public class MyPCB {
      * 相当于指针，指向process,用来找到真正的进程实体
      */
     private Integer pid;
-
+    /**
+     * 进程名字
+     */
+    private String name;
     /**
      * 用来标识这个进程属于哪个作业。job id
      */
@@ -36,31 +39,31 @@ public class MyPCB {
     /**
      * 到达时间
      */
-    private Double arriveTime = 0D;
+    private Long arriveTime = 0L;
     /**
      * 开始时间
      */
-    private Double startTime = 0D;
+    private Long startTime = 0L;
     /**
      * 等待时间
      */
-    private Double waitTime = 0D;
+    private Long waitTime = 0L;
     /**
      * 完成时间
      */
-    private Double finishTime = 0D;
+    private Long finishTime = 0L;
     /**
      * 运行时间，这是一个时间长度，时间单位为毫秒
      */
-    private Double runTime = 0D;
+    private Long runTime = 0L;
     /**
      * 周转时间
      */
-    private Double turnTime = 0D;
+    private Long turnTime = 0L;
     /**
      * 带权周转时间
      */
-    private Double weightTime = 0D;
+    private Long weightTime = 0L;
 
 
 }

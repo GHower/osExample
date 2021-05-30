@@ -6,6 +6,7 @@ import os.model.entity.*;
 import os.service.*;
 import os.service.impl.*;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -16,31 +17,44 @@ public class OSMain {
     public static Map<MyStatus, LinkedList<MyPCB>> innerQueue = null; // 模拟内存
     public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue = null; // 模拟外存
     public static MyPCBPool pcbPool = null;// pcb池
-    public static int time = 0;//当前系统时刻
-//    public static ; //
-//    public static ; //
-    public static JobService jobService = new JobServiceImpl();
-    public static ProcessService processService = new ProcessServiceImpl();
-    public static BankService bankService = new BankServiceImpl();
-    public static DispatchService dispatchService = new DispatchServiceImpl();
-    public static MemoryService memoryService = new MemoryServiceImpl();
+    public static long time = 0;//当前系统时刻,用时间戳表示
+    public static Integer max; // 最大内存
+//    public static List<MyResource> available = null;// 系统可用资源
+    public static int[] available = {32,34,34};// 系统可用资源
+
+    public static JobService jobService = new JobServiceImpl();// 与作业相关的服务
+    public static ProcessService processService = new ProcessServiceImpl();// 进程相关的服务
+    public static BankService bankService = new BankServiceImpl();// 银行家算法
+    public static DispatchService dispatchService = new DispatchServiceImpl();// 调度相关的服务
+    public static MemoryService memoryService = new MemoryServiceImpl();// 内存相关的服务
 
     public static void main(String[] args) {
         OSMain osMain = new OSMain();
         osMain.init();// 初始化、系统参数
-        osMain.run();// 运行函数
+        osMain.start();// 运行函数
     }
 
     /**
      * 在这里写主程序代码，懒得弄静态了
      */
-    public void run() {
-        // 生成测试的jcb
-        LinkedList<MyJCB> myJCBS = jobService.testJCB();
-        // 更新 后备作业 队列，按FCFS放入
-        outsideQueue.put(MyStatus.BACK, dispatchService.FCFS(myJCBS));
-
-
+    public void start() {
+        // 生成测试的jcb 更新 后备作业 队列
+        outsideQueue.put(MyStatus.BACK, jobService.testJCB());
+        // 进行作业调度
+        System.out.println("=======作业调度========");
+        dispatchService.jobDispatch();
+        System.out.println("后备队列：" + OSMain.outsideQueue.get(MyStatus.BACK));
+        System.out.println("就绪队列：" + OSMain.innerQueue.get(MyStatus.READY));
+        System.out.println("=======进程调度========");
+//        dispatchService.jobDispatch();
+        dispatchService.proDispatch();
+        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
+        System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
+        System.out.println("=======阻塞产生========");
+        dispatchService.blockDispatch();
+        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
+        System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
+        System.out.println("等待队列：" + innerQueue.get(MyStatus.WAIT));
 
 //        List<MyProcess> myProcesses = new ArrayList<>();
 //        List<MyPCB> myPCBS = new ArrayList<>();
@@ -87,13 +101,6 @@ public class OSMain {
     }
 
     /**
-     * 为进程设置资源
-     */
-    private void processResource() {
-
-    }
-
-    /**
      * 初始化
      * 内存中的 就绪、运行、等待、完成 队列
      * 外存中的 后备、挂起 队列
@@ -118,6 +125,24 @@ public class OSMain {
         innerQueue.put(MyStatus.FINISH, finishList);
     }
 
+    /**
+     *  todo： 进入下一时间单位
+      */
+    void timeNext(){
+
+    }
+
+    /**
+     * 模拟执行进程
+     */
+    void runProcess(){
+        LinkedList<MyPCB> runList = innerQueue.get(MyStatus.RUN);
+        MyPCB first = runList.getFirst();
+        MyProcess process = processService.getProcessByPid(first.getPid());
+        List<MyResource> need = process.getNeed();
+
+
+    }
     /**
      * 进程调度的输入过程，命令行黑框方式
      * fixme: 从文件或数据库读取，更快生成。或者线程方式随机时间按一定规律随机生成

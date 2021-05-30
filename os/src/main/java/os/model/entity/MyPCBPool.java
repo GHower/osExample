@@ -51,6 +51,7 @@ public class MyPCBPool {
         myPCB.setPriority(1);
         myPCB.setJid(myJCB.getId());
         myPCB.setPriority(myJCB.getPriority());
+        myPCB.setName(myProcess.getName());
         pcbPool.add(myPCB);
         return myPCB;
     }

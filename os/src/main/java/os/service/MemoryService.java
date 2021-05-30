@@ -2,16 +2,12 @@ package os.service;
 
 import os.model.entity.MyJCB;
 import os.model.entity.MyPCB;
+import os.model.entity.MyProcess;
 
 /**
  * 内存服务
  */
 public interface MemoryService {
-
-    /**
-     * 显示位示图到控制台
-     */
-    public void showBitMap();
 
     /**
      * todo: 判断内存是否可以分配
@@ -24,11 +20,17 @@ public interface MemoryService {
     /**
      * todo: 分配内存的操作
      *
-     * @param myPCB 需要分配内存的进程
+     * @param myProcess 需要分配内存的进程
      * @return 分配是否成功, 成功true, 失败false
      */
-    public boolean allocation(MyPCB myPCB);
-
+    public boolean allocation(MyProcess myProcess);
+    /**
+     * 查找内存空间中的进程
+     *
+     * @param pid 进程pid
+     * @return 分配是否成功, 成功true, 失败false
+     */
+    public MyProcess getProcessByPid(Integer pid);
     /**
      * 回收内存
      */
