@@ -1,5 +1,6 @@
 package os.service.impl;
 
+import os.OSMain;
 import os.model.entity.MyPCB;
 import os.model.entity.MyProcess;
 import os.model.entity.MyRequest;
@@ -33,6 +34,12 @@ public class BankServiceImpl implements BankService {
      */
 //    int[][] allocation = {{3,2},{2,0},{1,3},{1,0}};
     int[][] allocation ;
+
+
+    /**
+     *   判断是否为申请资源的标志 true表示是，默认否
+     */
+    boolean T=false;
     /**
      * 存放数组行号与进程名的关系
      * k-进程名
@@ -61,20 +68,28 @@ public class BankServiceImpl implements BankService {
     int num= 1;
     /**
      * to时刻请求资源
+     * int[] req= {1,1};
      */
-    int[] req= {1,1};
+
+
 
     /**
-     * 初始化数据结构
+     * 试分配数据结构
      */
-    public BankServiceImpl(){
-  /*      setAvailable();
-        setMax();
-        setNeed();*/
-    }
+    int[][] tmpAllocation ;
+    int[][] tmpNeed ;
+    int[] tmpAvailable ;
+    int[] tmpWork ;
 
+
+    /**
+     * 设置
+     * @param pcbs 某时刻的进程数组，对资源请求
+     * @param allocation
+     * @return 是否安全 T|F
+     */
     @Override
-    public boolean checkSafe(List<MyPCB> pcbs , List<MyProcess> allocation,int[] ava) {
+    public boolean checkSafe(List<MyPCB> pcbs , List<MyProcess> allocation) {
         /**
          *
          * 获取各进程申请资源的信息
@@ -150,6 +165,7 @@ public class BankServiceImpl implements BankService {
 
                 //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
 
+
                 /**
                  * 先做映射再插入
                  * 根据资源名称和资源数量插入到allocation中
@@ -162,7 +178,7 @@ public class BankServiceImpl implements BankService {
         /**
          * 设置available矩阵
          */
-        this.setAvailable(ava,false);
+        this.setAvailable(OSMain.available,false);
         /**
          * 设置work矩阵
          */
@@ -171,6 +187,11 @@ public class BankServiceImpl implements BankService {
          * 设置need矩阵
          */
         this.setNeed();
+
+        setTmpAllocation();
+        setTmpAvailable();
+        setTmpNeed();
+        setTmpWork();
         System.out.println(map);
         printSystemVariable();
         return SecurityAlgorithm();
@@ -186,6 +207,51 @@ public class BankServiceImpl implements BankService {
         }*/
     }
 
+    /**
+     *申请资源
+     * 申请失败，可用资源应该是试分配之前的数据    且试分配的数据更正为该时刻的数据便下次申请资源使用
+     * 申请成功后可用资源才修改为试分配的数据
+     *
+     * @param request 某一时刻的进程申请资源
+     * @return 是否安全 true | f
+     */
+    @Override
+    public boolean setRequest(MyRequest request) {
+
+
+        List<MyResource> myResources = request.getRequest();
+        System.out.println(map.toString()+"request=================");
+        //获取通过id获取map映射对应的allocation下标，在试分配使用
+        num = (int) map.get(request.getId());
+
+        this.Request = new int[tmpAllocation.length][tmpAvailable.length];
+
+
+        /**
+         * 设置Request矩阵
+         */
+        for (int j = 0; j < tmpAvailable.length; j++) {
+            MyResource resource = myResources.get(j);
+
+            //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
+
+            Request[num][j] = resource.getNumber();
+        }
+
+
+        /**
+         * 打印需要申请的资源
+         */
+        System.out.print("进程P" + num + "对各资源请求Request：("  );
+        for (int i = 0; i < Request[num].length; i++) {
+            System.out.print(Request[num][i]+",");
+        }
+        System.out.println(").");
+        System.out.println();
+        //设置申请资源标志位
+        T=true;
+        return BankerAlgorithm();
+    }
 
     /**
      * TODO:设置Max矩阵
@@ -209,32 +275,38 @@ public class BankServiceImpl implements BankService {
     }
     /**
      * 设置Available矩阵
+     * 注意引用类型是赋值地址
      */
     private  void setAvailable(int[] ava,boolean flag){
-        if (!flag){
-            this.available=ava;
-            this.maxAva=new int[ava.length];
-            for (int i = 0 ; i<ava.length;i++){
-                int tmp = ava[i];
-                maxAva[i]=tmp;
-            }
 
+
+        if (flag){
+            for (int i = 0; i < OSMain.available.length; i++) {
+                OSMain.available[i]=maxAva[i];
+            }
             System.out.println("setAvailable");
-            for (int i = 0; i < available.length; i++) {
-                for (int j = 0; j < max.length; j++) {
-                    available[i] = available[i] - allocation[j][i];
-                }
-            }
-            for (int i = 0; i < maxAva.length; i++) {
-                System.out.println(maxAva[i]+"====================");
-            }
+            return;
+        }
+        available=new int[OSMain.available.length];
+        maxAva=new int[OSMain.available.length];
 
-        }else {
-            for (int i = 0 ; i<ava.length;i++){
-                int tmp = ava[i];
-                available[i]=tmp;
+        for (int i = 0; i < OSMain.available.length; i++) {
+            maxAva[i]=OSMain.available[i];
+        }
+
+        for (int i = 0; i < available.length; i++) {
+            available[i]=ava[i];
+
+        }
+        for (int i = 0; i < available.length; i++) {
+            for (int j = 0; j < max.length; j++) {
+                available[i] = available[i] - allocation[j][i];
             }
         }
+        for (int i = 0; i < OSMain.available.length; i++) {
+            OSMain.available[i]=available[i];
+        }
+
 
     }
 
@@ -247,6 +319,107 @@ public class BankServiceImpl implements BankService {
         this.max=new int[processList.size()][resource.size()];
 
     }
+
+
+    /**
+     * 初始化work
+     */
+    private void  setWork(){
+        this.Work = new int[available.length];
+    }
+
+
+    /**
+     *    设置 int[][] tmpAllocation ;
+     */
+    private void setTmpAllocation(){
+        tmpAllocation = new int[allocation.length][allocation[0].length];
+        for (int i = 0; i < allocation.length; i++) {
+            for (int j = 0; j < allocation[0].length; j++) {
+                tmpAllocation[i][j]=allocation[i][j];
+            }
+        }
+    }
+
+    /**
+     * int[][] tmpNeed
+     */
+    private void setTmpNeed(){
+        tmpNeed = new int[Need.length][Need[0].length];
+        for (int i = 0; i < Need.length; i++) {
+            for (int j = 0; j < Need[0].length; j++) {
+                tmpNeed[i][j]=Need[i][j];
+            }
+        }
+    }
+
+
+    /**
+     * int[] tmpAvailable ;
+     */
+    private void setTmpAvailable(){
+        tmpAvailable = new int[available.length];
+        for (int i = 0; i < available.length; i++) {
+            tmpAvailable[i]=available[i];
+        }
+    }
+
+    /**
+     * int[] tmpWork ;
+     */
+
+    private void setTmpWork(){
+        tmpWork = new int[Work.length];
+        for (int i = 0; i < Work.length; i++) {
+            tmpWork[i]=Work[i];
+        }
+    }
+
+
+
+    /**
+     *    设置 int[][] tmpAllocation ;
+     */
+    private void setTmpAllocationToAll(){
+        for (int i = 0; i < allocation.length; i++) {
+            for (int j = 0; j < allocation[0].length; j++) {
+                allocation[i][j]=tmpAllocation[i][j];
+            }
+        }
+    }
+
+    /**
+     * int[][] tmpNeed
+     */
+    private void setTmpNeedToNeed(){
+        for (int i = 0; i < Need.length; i++) {
+            for (int j = 0; j < Need[0].length; j++) {
+                Need[i][j]=tmpNeed[i][j];
+            }
+        }
+    }
+
+
+    /**
+     * int[] tmpAvailable ;
+     */
+    private void setTmpAvailableToAva(){
+
+        for (int i = 0; i < available.length; i++) {
+            available[i]=tmpAvailable[i];
+        }
+    }
+
+    /**
+     * int[] tmpWork ;
+     */
+
+    private void setTmpWorkToWork(){
+        for (int i = 0; i < Work.length; i++) {
+            Work[i]=tmpWork[i];
+        }
+    }
+
     /**
      * 打印各进程资源分配表
      */
@@ -255,21 +428,21 @@ public class BankServiceImpl implements BankService {
         System.out.println("进程  "+"   Max   "+"   Alloction "+"    Need  "+"     Available ");
         for(int i=0;i< max.length;i++){
             System.out.print("P"+i+"  ");
-            for(int j=0;j<available.length;j++){
+            for(int j=0;j<tmpAvailable.length;j++){
                 System.out.print(max[i][j]+"  ");
             }
             System.out.print("|  ");
-            for(int j=0;j< available.length;j++){
-                System.out.print(allocation[i][j]+"  ");
+            for(int j=0;j< tmpAvailable.length;j++){
+                System.out.print(tmpAllocation[i][j]+"  ");
             }
             System.out.print("|  ");
-            for(int j=0;j<available.length;j++){
-                System.out.print(Need[i][j]+"  ");
+            for(int j=0;j<tmpAvailable.length;j++){
+                System.out.print(tmpNeed[i][j]+"  ");
             }
             System.out.print("|  ");
             if(i==0){
-                for(int j=0;j<available.length;j++){
-                    System.out.print(available[j]+"  ");
+                for(int j=0;j<tmpAvailable.length;j++){
+                    System.out.print(tmpAvailable[j]+"  ");
                 }
             }
             System.out.println();
@@ -282,7 +455,7 @@ public class BankServiceImpl implements BankService {
      */
     public boolean SecurityAlgorithm() {
         Boolean Finish[] = new Boolean[max.length];//初始化Finish
-        //设值
+
         for (int i = 0; i < Finish.length; i++) {
             Finish[i]=false;
         }
@@ -290,10 +463,23 @@ public class BankServiceImpl implements BankService {
         int count = 0;//完成进程数
         int circle=0;//循环圈数
         int[] S=new int[max.length];//安全序列
-        for (int i = 0; i < available.length; i++) {//设置工作向量
-            Work[i] = available[i];
+
+
+        for (int i = 0; i < tmpAvailable.length; i++) {//设置工作向量
+            tmpWork[i] = tmpAvailable[i];
         }
+
+
         boolean flag = true;
+
+        /**
+         * 定义一个变量表示完成进程数，
+         * 定义一个变量表示循环圈数
+         * 而循环的条件就是完成的进程数要小于所有进程数
+         *  在循环里只有work向量大于need向量 完成进程数才会加1，循环圈数是每次都加一的，
+         *      如果完成进程数没有加一就意味着在所有的进程里没有找到 work>need ，因此可以判断没有安全序列
+         *      如果完成进程数是等于所有进程数的，则意味着有安全序列。
+         */
         while (count < max.length) {
             if(flag){
                 System.out.println("进程  "+"   Work  "+"   Alloction "+"    Need  "+"     Work+Alloction ");
@@ -307,27 +493,35 @@ public class BankServiceImpl implements BankService {
                  */
                 if (isWork(Finish,i)) {//判断条件
                     System.out.print("P"+i+"  ");
-                    for (int k = 0; k < available.length; k++){
-                        System.out.print(Work[k]+"  ");
+                    for (int k = 0; k < tmpAvailable.length; k++){
+                        System.out.print(tmpWork[k]+"  ");
                     }
                     System.out.print("|  ");
-                    for (int j = 0; j<available.length;j++){
-                        Work[j]+=allocation[i][j];
+
+                    /**
+                     * work + allocation = work
+                     *
+                     */
+
+                    for (int j = 0; j<tmpAvailable.length;j++){
+                        tmpWork[j]+=tmpAllocation[i][j];
                     }
+
                     Finish[i]=true;//当当前进程能满足时
                     S[count]=i;//设置当前序列排号
 
                     count++;//满足进程数加1
-                    for(int j=0;j<available.length;j++){
-                        System.out.print(allocation[i][j]+"  ");
+
+                    for(int j=0;j<tmpAvailable.length;j++){
+                        System.out.print(tmpAllocation[i][j]+"  ");
                     }
                     System.out.print("|  ");
-                    for(int j=0;j<available.length;j++){
-                        System.out.print(Need[i][j]+"  ");
+                    for(int j=0;j<tmpAvailable.length;j++){
+                        System.out.print(tmpNeed[i][j]+"  ");
                     }
                     System.out.print("|  ");
-                    for(int j=0;j<available.length;j++){
-                        System.out.print(Work[j]+"  ");
+                    for(int j=0;j<tmpAvailable.length;j++){
+                        System.out.print(tmpWork[j]+"  ");
                     }
                     System.out.println(Finish[i]==true?"完成":"未完成");
                     System.out.println();
@@ -342,7 +536,13 @@ public class BankServiceImpl implements BankService {
                     System.out.print("P"+S[i]+" ");
                 }
                 System.out.println("故当前可分配！");
-                setAvailable(this.maxAva,true);
+                //设置真证的数据
+                setTmpAllocationToAll();
+                setTmpAvailableToAva();
+                setTmpNeedToNeed();
+                setTmpWorkToWork();
+                setAvailable(OSMain.available,true);
+                System.out.println("安全序列=================");
                 return true;//跳出循环
             }
             if(count<circle){//判断完成进程数是否小于循环圈数
@@ -364,28 +564,19 @@ public class BankServiceImpl implements BankService {
         if (Request==null ||Request.length == 0  ){
             return SecurityAlgorithm();
         }
-        boolean T=true;
-        /**
-         * 需要动态判断，写算法
-         * TODO:判断
-         * Request[num][0] <= Need[num][0] && Request[num][1] <= Need[num][1]
-         * Request[num][0] <= available[0] && Request[num][1] <= available[1]
-         *
-         * 试分配
-         */
+
         if (isNeed()) {//判断Request是否小于Need
             if (isAvailable()) {//判断Request是否小于Allocation
-                for (int i = 0; i < available.length; i++) {
-                    available[i] -= Request[num][i];
-                    allocation[num][i] += Request[num][i];
-                    Need[num][i] -= Request[num][i];
+                for (int i = 0; i < tmpAvailable.length; i++) {
+                    tmpAvailable[i] -= Request[num][i];
+                    tmpAllocation[num][i] += Request[num][i];
+                    tmpNeed[num][i] -= Request[num][i];
                 }
             } else {
                 /**
                  * TODO:抛出异常
                  */
                 System.out.println("当前没有足够的资源可分配，进程P" + num + "需等待。");
-                T=false;
                 return false;
             }
         } else {
@@ -393,61 +584,20 @@ public class BankServiceImpl implements BankService {
              * TODO:抛出异常
              */
             System.out.println("进程P" + num + "请求已经超出最大需求量Need.");
-            T=false;
             return false;
         }
 
-        if(T==true){
-            printSystemVariable();
-            System.out.println("现在进入安全算法：");
-            return SecurityAlgorithm();
-        }
-        return false;
+        printSystemVariable();
+        System.out.println("现在进入安全算法：");
+        return SecurityAlgorithm();
+
     }
 
 
-    /**
-     * 设置请求资源量Request
-     */
-    @Override
-    public boolean setRequest(MyRequest request,int[] ava) {
-
-        List<MyResource> myResources = request.getRequest();
-
-        //获取通过id获取map映射对应的allocation下标，在试分配使用
-        num = (int) map.get(request.getId());
-
-        this.Request = new int[allocation.length][available.length];
 
 
-        /**
-         * 设置Request矩阵
-         */
-        for (int j = 0; j < available.length; j++) {
-                MyResource resource = myResources.get(j);
-
-                 //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
-
-                Request[num][j] = resource.getNumber();
-        }
 
 
-        /**
-         * 打印需要申请的资源
-         */
-        System.out.print("进程P" + num + "对各资源请求Request：("  );
-        for (int i = 0; i < Request[num].length; i++) {
-            System.out.print(Request[num][i]+",");
-        }
-        System.out.println(").");
-        System.out.println();
-        return BankerAlgorithm();
-    }
-
-
-    private void  setWork(){
-        this.Work = new int[available.length];
-    }
 
 
     /**
@@ -458,28 +608,28 @@ public class BankServiceImpl implements BankService {
      */
     private boolean isWork(Boolean Finish[] ,int i ){
 
-        if (available.length==1){
+        if (tmpAvailable.length==1){
             return Finish[i]==false && Need[i][0]<=Work[0] ;
         }
-        if (available.length==2){
+        if (tmpAvailable.length==2){
             return Finish[i]==false && Need[i][0]<=Work[0] &&  Need[i][1]<=Work[1];
         }
 
-        if (available.length==3){
-            return Finish[i]==false && Need[i][0]<=Work[0] &&  Need[i][1]<=Work[1] && Need[i][2]<=Work[2];
+        if (tmpAvailable.length==3){
+            return Finish[i]==false && tmpNeed[i][0]<=tmpWork[0] &&  tmpNeed[i][1]<=tmpWork[1] && tmpNeed[i][2]<=tmpWork[2];
         }
 
-        if (available.length==4){
-            return Finish[i]==false && Need[i][0]<=Work[0] &&  Need[i][1]<=Work[1] && Need[i][2]<=Work[2] && Need[i][3]<=Work[3];
+        if (tmpAvailable.length==4){
+            return Finish[i]==false && tmpNeed[i][0]<=tmpWork[0] &&  tmpNeed[i][1]<=tmpWork[1] && tmpNeed[i][2]<=tmpWork[2] && tmpNeed[i][3]<=tmpWork[3];
         }
-        if (available.length==5){
-            return Finish[i]==false && Need[i][0]<=Work[0] &&  Need[i][1]<=Work[1] && Need[i][2]<=Work[2] && Need[i][3]<=Work[3] && Need[i][4]<=Work[4] ;
+        if (tmpAvailable.length==5){
+            return Finish[i]==false && tmpNeed[i][0]<=tmpWork[0] &&  tmpNeed[i][1]<=tmpWork[1] && tmpNeed[i][2]<=tmpWork[2] && tmpNeed[i][3]<=tmpWork[3] && tmpNeed[i][4]<=tmpWork[4] ;
         }
-        if (available.length==6){
-            return Finish[i]==false && Need[i][0]<=Work[0] &&  Need[i][1]<=Work[1] && Need[i][2]<=Work[2] && Need[i][3]<=Work[3] && Need[i][4]<=Work[4] && Need[i][5]<=Work[5];
+        if (tmpAvailable.length==6){
+            return Finish[i]==false && tmpNeed[i][0]<=tmpWork[0] &&  tmpNeed[i][1]<=tmpWork[1] && tmpNeed[i][2]<=tmpWork[2] && tmpNeed[i][3]<=tmpWork[3] && tmpNeed[i][4]<=tmpWork[4] && tmpNeed[i][5]<=tmpWork[5];
         }
-        if (available.length==7){
-            return Finish[i]==false && Need[i][0]<=Work[0] &&  Need[i][1]<=Work[1] && Need[i][2]<=Work[2] && Need[i][3]<=Work[3] && Need[i][4]<=Work[4] && Need[i][5]<=Work[5] && Need[i][6]<=Work[6];
+        if (tmpAvailable.length==7){
+            return Finish[i]==false && tmpNeed[i][0]<=tmpWork[0] &&  tmpNeed[i][1]<=tmpWork[1] && tmpNeed[i][2]<=tmpWork[2] && tmpNeed[i][3]<=tmpWork[3] && tmpNeed[i][4]<=tmpWork[4] && tmpNeed[i][5]<=tmpWork[5] && tmpNeed[i][6]<=tmpWork[6];
         }
 
         return false;
@@ -488,22 +638,22 @@ public class BankServiceImpl implements BankService {
 
     private boolean isNeed(){
         if (Request[num].length==1){
-            return Request[num][0] <= Need[num][0] ;
+            return Request[num][0] <= tmpNeed[num][0] ;
         }
         if (Request[num].length==2){
-            return Request[num][0] <= Need[num][0] && Request[num][1] <= Need[num][1] ;
+            return Request[num][0] <= tmpNeed[num][0] && Request[num][1] <= tmpNeed[num][1] ;
         }
         if (Request[num].length==3){
-            return Request[num][0] <= Need[num][0] && Request[num][1] <= Need[num][1] && Request[num][2] <= Need[num][2] ;
+            return Request[num][0] <= tmpNeed[num][0] && Request[num][1] <= tmpNeed[num][1] && Request[num][2] <= tmpNeed[num][2] ;
         }
         if (Request[num].length==4){
-            return Request[num][0] <= Need[num][0] && Request[num][1] <= Need[num][1] && Request[num][2] <= Need[num][2] && Request[num][4] <= Need[num][4] ;
+            return Request[num][0] <= tmpNeed[num][0] && Request[num][1] <= tmpNeed[num][1] && Request[num][2] <= tmpNeed[num][2] && Request[num][4] <= tmpNeed[num][4] ;
         }
         if (Request[num].length==5){
-            return Request[num][0] <= Need[num][0] && Request[num][1] <= Need[num][1] && Request[num][2] <= Need[num][2] && Request[num][4] <= Need[num][4]  && Request[num][5] <= Need[num][5];
+            return Request[num][0] <= tmpNeed[num][0] && Request[num][1] <= tmpNeed[num][1] && Request[num][2] <= tmpNeed[num][2] && Request[num][4] <= tmpNeed[num][4]  && Request[num][5] <= tmpNeed[num][5];
         }
         if (Request[num].length==6){
-            return Request[num][0] <= Need[num][0] && Request[num][1] <= Need[num][1] && Request[num][2] <= Need[num][2] && Request[num][3] <= Need[num][3]  && Request[num][4] <= Need[num][4] && Request[num][5] <= Need[num][5];
+            return Request[num][0] <= tmpNeed[num][0] && Request[num][1] <= tmpNeed[num][1] && Request[num][2] <= tmpNeed[num][2] && Request[num][3] <= tmpNeed[num][3]  && Request[num][4] <= tmpNeed[num][4] && Request[num][5] <= tmpNeed[num][5];
         }
         return false;
     }
@@ -511,22 +661,22 @@ public class BankServiceImpl implements BankService {
 
     private boolean isAvailable(){
         if (Request[num].length==1){
-            return Request[num][0] <= available[0] ;
+            return Request[num][0] <= tmpAvailable[0] ;
         }
         if (Request[num].length==2){
-            return Request[num][0] <= available[0] && Request[num][1] <= available[1] ;
+            return Request[num][0] <= tmpAvailable[0] && Request[num][1] <= tmpAvailable[1] ;
         }
         if (Request[num].length==3){
-            return Request[num][0] <= available[0] && Request[num][1] <= available[1] && Request[num][2] <= available[2] ;
+            return Request[num][0] <= tmpAvailable[0] && Request[num][1] <= tmpAvailable[1] && Request[num][2] <= tmpAvailable[2] ;
         }
         if (Request[num].length==4){
-            return Request[num][0] <= available[0] && Request[num][1] <= available[1] && Request[num][2] <= available[2] && Request[num][4] <= available[4] ;
+            return Request[num][0] <= tmpAvailable[0] && Request[num][1] <= tmpAvailable[1] && Request[num][2] <= tmpAvailable[2] && Request[num][4] <= tmpAvailable[4] ;
         }
         if (Request[num].length==5){
-            return Request[num][0] <= available[0] && Request[num][1] <= available[1] && Request[num][2] <= available[2] && Request[num][4] <= available[4]  && Request[num][5] <= available[5];
+            return Request[num][0] <= tmpAvailable[0] && Request[num][1] <= tmpAvailable[1] && Request[num][2] <= tmpAvailable[2] && Request[num][3] <= tmpAvailable[3]  && Request[num][4] <= tmpAvailable[4];
         }
         if (Request[num].length==6){
-            return Request[num][0] <= available[0] && Request[num][1] <= available[1] && Request[num][2] <= available[2] && Request[num][3] <= available[3]  && Request[num][4] <= available[4] && Request[num][5] <= available[5];
+            return Request[num][0] <= tmpAvailable[0] && Request[num][1] <= tmpAvailable[1] && Request[num][2] <= tmpAvailable[2] && Request[num][3] <= tmpAvailable[3]  && Request[num][4] <= tmpAvailable[4] && Request[num][5] <= tmpAvailable[5];
         }
         return false;
     }

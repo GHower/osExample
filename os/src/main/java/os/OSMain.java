@@ -20,7 +20,7 @@ public class OSMain {
     public static long time = 0;//当前系统时刻,用时间戳表示
     public static Integer max; // 最大内存
     //    public static List<MyResource> available = null;// 系统可用资源
-    public static int[] available = {32, 34, 34};// 系统可用资源
+    public static int[] available = {10, 10, 9};// 系统可用资源
 
     public static JobService jobService = new JobServiceImpl();// 与作业相关的服务
     public static ProcessService processService = new ProcessServiceImpl();// 进程相关的服务
@@ -58,23 +58,23 @@ public class OSMain {
 
         List<MyProcess> myProcesses = new ArrayList<>();
         List<MyPCB> myPCBS = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             List<MyResource> myResourceList = new ArrayList<>();
             List<MyResource> myResourceList1 = new ArrayList<>();
             MyPCB myPCB = new MyPCB();
             MyProcess myProcess = new MyProcess();
             myPCB.setPid(i);
             myProcess.setId(i);
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 3; j++) {
                 MyResource myResource = new MyResource();
                 myResource.setName("r"+j);
-                myResource.setNumber(3);
+                myResource.setNumber(4);
                 myResourceList.add(myResource);
             }
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 3; j++) {
                 MyResource myResource = new MyResource();
                 myResource.setName("r"+j);
-                myResource.setNumber(7);
+                myResource.setNumber(6);
                 myResourceList1.add(myResource);
             }
             myProcess.setAllocation(myResourceList);
@@ -83,23 +83,37 @@ public class OSMain {
             myProcesses.add(myProcess);
         }
 
-        System.out.println(bankService.checkSafe(myPCBS,myProcesses,available));
+        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
         for (int i = 0; i < available.length; i++) {
             System.out.println(available[i]);
         }
-//        bankService.printSystemVariable();
         MyRequest myRequest = new MyRequest();
-        myRequest.setId(3);
+        myRequest.setId(0);
 
         List<MyResource> myResourceList = new ArrayList<>();
-        for (int j = 0; j < 5; j++) {
+        for (int j = 0; j < 3; j++) {
             MyResource myResource = new MyResource();
             myResource.setName("p"+j);
-            myResource.setNumber(2);
+            myResource.setNumber(3);
             myResourceList.add(myResource);
         }
         myRequest.setRequest(myResourceList);
-        System.out.println(bankService.setRequest(myRequest,available));
+        System.out.println(bankService.setRequest(myRequest));
+
+/*        MyRequest myRequest1 = new MyRequest();
+        myRequest1.setId(3);
+        List<MyResource> myResourceList1 = new ArrayList<>();
+        for (int j = 0; j < 3; j++) {
+            MyResource myResource = new MyResource();
+            myResource.setName("p"+j);
+            myResource.setNumber(3);
+            myResourceList1.add(myResource);
+        }
+        myRequest1.setRequest(myResourceList1);
+        System.out.println(bankService.setRequest(myRequest1));*/
+
+
+
         for (int i = 0; i < available.length; i++) {
             System.out.println(available[i]);
         }
