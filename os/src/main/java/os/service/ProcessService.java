@@ -28,10 +28,12 @@ public interface ProcessService {
 
     // 一个作业生成若干进程,简单一点，这里只做一个
     public MyProcess testProcess(MyJCB myJCB);
-
+    /**
+     *
+     */
+    public List<MyResource> testIncResource(int n, List<MyResource> ups, List<MyResource> cur);
     /**
      * 通过pid获取pcb
-     *
      * @return
      */
     MyPCB getPcbByPid(Integer pid);
@@ -42,4 +44,6 @@ public interface ProcessService {
      * @return
      */
     int getRNumByRName(MyProcess process, String name);
+
+
 }

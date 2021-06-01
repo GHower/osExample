@@ -90,10 +90,10 @@ public class MemoryServiceImpl implements MemoryService {
 
     @Override
     public MyProcess getProcessByPid(Integer pid) {
-        List<MyProcess> collect = myProcesses.stream()
+        Optional<MyProcess> Optional = myProcesses.stream()
                 .filter(e -> e.getId().equals(pid))
-                .collect(Collectors.toList());
-        return collect.size() > 0 ? collect.get(0) : null;
+                .findFirst();
+        return Optional.orElse(null);
     }
 
     /**

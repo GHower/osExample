@@ -16,9 +16,9 @@ public class JobServiceImpl implements JobService {
      *
      * @return JCB数组
      */
-    public LinkedList<MyJCB> testJCB() {
+    public LinkedList<MyJCB> testJCB(int n) {
         LinkedList<MyJCB> myJCBS = new LinkedList<>();
-        for(int i=1;i<=3;i++){
+        for(int i=1;i<=n;i++){
             MyJCB myJCB = new MyJCB();
             myJCB.setId(i);
             myJCB.setUsername("ghower");

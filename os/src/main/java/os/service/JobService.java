@@ -14,5 +14,5 @@ public interface JobService {
      * 随机生成测试JCB
      * @return JCB数组
      */
-    LinkedList<MyJCB> testJCB();
+    LinkedList<MyJCB> testJCB(int n);
 }

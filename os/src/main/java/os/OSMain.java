@@ -39,7 +39,7 @@ public class OSMain {
      */
     public void start() {
         // 生成测试的jcb 更新 后备作业 队列
-        outsideQueue.put(MyStatus.BACK, jobService.testJCB());
+        outsideQueue.put(MyStatus.BACK, jobService.testJCB(6));
         // 进行作业调度
         System.out.println("=======作业调度========");
         dispatchService.jobDispatch();
@@ -50,62 +50,64 @@ public class OSMain {
         dispatchService.proDispatch();
         System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
         System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
-        System.out.println("=======阻塞产生========");
-        dispatchService.blockDispatch();
-        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
-        System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
-        System.out.println("等待队列：" + innerQueue.get(MyStatus.WAIT));
-        System.out.println("=======内存情况========");
-        memoryService.display3();
-        System.out.println("=======移除内存后========");
-        MyPCB first = OSMain.innerQueue.get(MyStatus.WAIT).removeFirst();
-        memoryService.remove(first);
+        runProcess();
+//        System.out.println("=======阻塞产生========");
+//        dispatchService.blockDispatch();
+//        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
+//        System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
+//        System.out.println("等待队列：" + innerQueue.get(MyStatus.WAIT));
 
-        memoryService.display3();
+//        System.out.println("=======内存情况========");
+//        memoryService.display3();
+//        System.out.println("=======移除内存后========");
+//        // 从阻塞队列中移除一个做测试
+//        MyPCB first = OSMain.innerQueue.get(MyStatus.WAIT).removeFirst();
+//        memoryService.remove(first);
+//        memoryService.display3();
 
-//        List<MyProcess> myProcesses = new ArrayList<>();
-//        List<MyPCB> myPCBS = new ArrayList<>();
-//        for (int i = 0; i < 2; i++) {
-//            List<MyResource> myResourceList = new ArrayList<>();
-//            List<MyResource> myResourceList1 = new ArrayList<>();
-//            MyPCB myPCB = new MyPCB();
-//            MyProcess myProcess = new MyProcess();
-//            myPCB.setPid(i);
-//            myProcess.setId(i);
-//            for (int j = 0; j < 3; j++) {
-//                MyResource myResource = new MyResource();
-//                myResource.setName("r" + j);
-//                myResource.setNumber(4);
-//                myResourceList.add(myResource);
-//            }
-//            for (int j = 0; j < 3; j++) {
-//                MyResource myResource = new MyResource();
-//                myResource.setName("r" + j);
-//                myResource.setNumber(6);
-//                myResourceList1.add(myResource);
-//            }
-//            myProcess.setAllocation(myResourceList);
-//            myProcess.setMax(myResourceList1);
-//            myPCBS.add(myPCB);
-//            myProcesses.add(myProcess);
-//        }
-//
-//        System.out.println(bankService.checkSafe(myPCBS, myProcesses));
-//        for (int i = 0; i < available.length; i++) {
-//            System.out.println(available[i]);
-//        }
-//        MyRequest myRequest = new MyRequest();
-//        myRequest.setId(0);
-//
-//        List<MyResource> myResourceList = new ArrayList<>();
-//        for (int j = 0; j < 3; j++) {
-//            MyResource myResource = new MyResource();
-//            myResource.setName("p" + j);
-//            myResource.setNumber(3);
-//            myResourceList.add(myResource);
-//        }
-//        myRequest.setRequest(myResourceList);
-//        System.out.println(bankService.setRequest(myRequest));
+        List<MyProcess> myProcesses = new ArrayList<>();
+        List<MyPCB> myPCBS = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            List<MyResource> myResourceList = new ArrayList<>();
+            List<MyResource> myResourceList1 = new ArrayList<>();
+            MyPCB myPCB = new MyPCB();
+            MyProcess myProcess = new MyProcess();
+            myPCB.setPid(i);
+            myProcess.setId(i);
+            for (int j = 0; j < 3; j++) {
+                MyResource myResource = new MyResource();
+                myResource.setName("r" + j);
+                myResource.setNumber(4);
+                myResourceList.add(myResource);
+            }
+            for (int j = 0; j < 3; j++) {
+                MyResource myResource = new MyResource();
+                myResource.setName("r" + j);
+                myResource.setNumber(6);
+                myResourceList1.add(myResource);
+            }
+            myProcess.setAllocation(myResourceList);
+            myProcess.setMax(myResourceList1);
+            myPCBS.add(myPCB);
+            myProcesses.add(myProcess);
+        }
+
+        System.out.println(bankService.checkSafe(myPCBS, myProcesses));
+        for (int i = 0; i < available.length; i++) {
+            System.out.println(available[i]);
+        }
+        MyRequest myRequest = new MyRequest();
+        myRequest.setId(0);
+
+        List<MyResource> myResourceList = new ArrayList<>();
+        for (int j = 0; j < 3; j++) {
+            MyResource myResource = new MyResource();
+            myResource.setName("p" + j);
+            myResource.setNumber(3);
+            myResourceList.add(myResource);
+        }
+        myRequest.setRequest(myResourceList);
+        System.out.println(bankService.setRequest(myRequest));
 
 /*        MyRequest myRequest1 = new MyRequest();
         myRequest1.setId(3);
@@ -155,7 +157,17 @@ public class OSMain {
      * todo： 进入下一时间单位
      */
     void timeNext() {
+        System.out.println("下一时刻");
         time++;
+    }
+
+    /**
+     * todo: 强行中断运行中的进程
+     * 1. 释放占有的资源
+     * 2. 进程标记为异常，而不是完成，但也放在完成队列中
+     */
+    void interruptRun() {
+
     }
 
     /**
@@ -166,39 +178,25 @@ public class OSMain {
         MyPCB first = runList.getFirst();
         MyProcess process = processService.getProcessByPid(first.getPid());
         List<MyResource> request = process.getRequests();
+
+        // 这一时刻执行的进程请求量不是null，有申请资源行为
         if (request != null) {
             // todo: 调用银行家算法
             if (true) {
-                // 其他处理....
+                /**
+                 * 银行家通过,分配资源，修改allocation
+                 */
+                System.out.println("申请资源:" + request);
 
                 // 进入下一时间单位
                 timeNext();
             } else {
                 dispatchService.blockDispatch();
             }
+        } else {
+            // 不申请资源，直接进入下一时间单位
+            timeNext();
         }
     }
 
-    /**
-     * 进程调度的输入过程，命令行黑框方式
-     * fixme: 从文件或数据库读取，更快生成。或者线程方式随机时间按一定规律随机生成
-     */
-    public void processIn() {
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.print("输入进程数量：");
-//        int i = scanner.nextInt();
-//
-//        for(int j=0;j<i;j++){
-//            System.out.println("输入第"+(j+1)+"个进程的id、到达时间(s)、运行时间(s)：");
-//            Integer id = scanner.nextInt();
-//            Double arrive = scanner.nextDouble();
-//            Double run = scanner.nextDouble();
-//            MyPCB myPCB = new MyPCB();
-//            myPCB.setPid(id);
-//            myPCB.setArriveTime(arrive);
-////            myPCB.setArriveTime(LocalDateTime.now());
-//            myPCB.setRunTime(run);
-//            outsideQueue.get(MyStatus.BACK).add(myPCB);
-//        }
-    }
 }
