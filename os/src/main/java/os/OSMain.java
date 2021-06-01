@@ -60,6 +60,7 @@ public class OSMain {
         System.out.println("=======移除内存后========");
         MyPCB first = OSMain.innerQueue.get(MyStatus.WAIT).removeFirst();
         memoryService.remove(first);
+
         memoryService.display3();
 
 //        List<MyProcess> myProcesses = new ArrayList<>();

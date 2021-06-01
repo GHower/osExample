@@ -7,3 +7,5 @@
 /os/target/*
 target
 target/*
+os/target
+os/target/*
