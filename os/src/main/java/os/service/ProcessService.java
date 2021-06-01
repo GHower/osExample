@@ -31,13 +31,17 @@ public interface ProcessService {
     /**
      *
      */
-    public List<MyResource> testIncResource(int n, List<MyResource> ups, List<MyResource> cur);
+    public List<MyResource> testIncResource(List<MyResource> ups, List<MyResource> cur);
     /**
      * 通过pid获取pcb
      * @return
      */
     MyPCB getPcbByPid(Integer pid);
 
+    /**
+     * 生成资源请求
+     */
+    List<MyResource> testRequest(List<MyResource> ups, List<MyResource> cur);
     /**
      * 通过资源名称获取对应数量
      *

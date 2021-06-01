@@ -65,49 +65,49 @@ public class OSMain {
 //        memoryService.remove(first);
 //        memoryService.display3();
 
-        List<MyProcess> myProcesses = new ArrayList<>();
-        List<MyPCB> myPCBS = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            List<MyResource> myResourceList = new ArrayList<>();
-            List<MyResource> myResourceList1 = new ArrayList<>();
-            MyPCB myPCB = new MyPCB();
-            MyProcess myProcess = new MyProcess();
-            myPCB.setPid(i);
-            myProcess.setId(i);
-            for (int j = 0; j < 3; j++) {
-                MyResource myResource = new MyResource();
-                myResource.setName("r" + j);
-                myResource.setNumber(4);
-                myResourceList.add(myResource);
-            }
-            for (int j = 0; j < 3; j++) {
-                MyResource myResource = new MyResource();
-                myResource.setName("r" + j);
-                myResource.setNumber(6);
-                myResourceList1.add(myResource);
-            }
-            myProcess.setAllocation(myResourceList);
-            myProcess.setMax(myResourceList1);
-            myPCBS.add(myPCB);
-            myProcesses.add(myProcess);
-        }
-
-        System.out.println(bankService.checkSafe(myPCBS, myProcesses));
-        for (int i = 0; i < available.length; i++) {
-            System.out.println(available[i]);
-        }
-        MyRequest myRequest = new MyRequest();
-        myRequest.setId(0);
-
-        List<MyResource> myResourceList = new ArrayList<>();
-        for (int j = 0; j < 3; j++) {
-            MyResource myResource = new MyResource();
-            myResource.setName("p" + j);
-            myResource.setNumber(3);
-            myResourceList.add(myResource);
-        }
-        myRequest.setRequest(myResourceList);
-        System.out.println(bankService.setRequest(myRequest));
+//        List<MyProcess> myProcesses = new ArrayList<>();
+//        List<MyPCB> myPCBS = new ArrayList<>();
+//        for (int i = 0; i < 2; i++) {
+//            List<MyResource> myResourceList = new ArrayList<>();
+//            List<MyResource> myResourceList1 = new ArrayList<>();
+//            MyPCB myPCB = new MyPCB();
+//            MyProcess myProcess = new MyProcess();
+//            myPCB.setPid(i);
+//            myProcess.setId(i);
+//            for (int j = 0; j < 3; j++) {
+//                MyResource myResource = new MyResource();
+//                myResource.setName("r" + j);
+//                myResource.setNumber(4);
+//                myResourceList.add(myResource);
+//            }
+//            for (int j = 0; j < 3; j++) {
+//                MyResource myResource = new MyResource();
+//                myResource.setName("r" + j);
+//                myResource.setNumber(6);
+//                myResourceList1.add(myResource);
+//            }
+//            myProcess.setAllocation(myResourceList);
+//            myProcess.setMax(myResourceList1);
+//            myPCBS.add(myPCB);
+//            myProcesses.add(myProcess);
+//        }
+//
+//        System.out.println(bankService.checkSafe(myPCBS, myProcesses));
+//        for (int i = 0; i < available.length; i++) {
+//            System.out.println(available[i]);
+//        }
+//        MyRequest myRequest = new MyRequest();
+//        myRequest.setId(0);
+//
+//        List<MyResource> myResourceList = new ArrayList<>();
+//        for (int j = 0; j < 3; j++) {
+//            MyResource myResource = new MyResource();
+//            myResource.setName("p" + j);
+//            myResource.setNumber(3);
+//            myResourceList.add(myResource);
+//        }
+//        myRequest.setRequest(myResourceList);
+//        System.out.println(bankService.setRequest(myRequest));
 
 /*        MyRequest myRequest1 = new MyRequest();
         myRequest1.setId(3);
@@ -178,7 +178,6 @@ public class OSMain {
         MyPCB first = runList.getFirst();
         MyProcess process = processService.getProcessByPid(first.getPid());
         List<MyResource> request = process.getRequests();
-
         // 这一时刻执行的进程请求量不是null，有申请资源行为
         if (request != null) {
             // todo: 调用银行家算法
