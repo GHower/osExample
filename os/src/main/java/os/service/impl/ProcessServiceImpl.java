@@ -56,7 +56,7 @@ public class ProcessServiceImpl implements ProcessService {
     public MyProcess testProcess(MyJCB myJCB) {
         MyProcess myProcess = new MyProcess();
         myProcess.setName("p"+myJCB.getId());
-        myProcess.setId(OSMain.pcbPool.size()+1); //
+        myProcess.setId(OSMain.pcbPool.size()+1);
         myProcess.setMax(testResource(2));
         return myProcess;
     }
@@ -64,7 +64,7 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public MyPCB getPcbByPid(Integer pid) {
-        return null;
+        return myPCBPool.getPcbByPid(pid);
     }
 
     @Override

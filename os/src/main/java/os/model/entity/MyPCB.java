@@ -34,6 +34,10 @@ public class MyPCB {
      */
     private Integer Mstart;
     /**
+     * 当前进程在内存中的地址，也可以是虚拟地址
+     */
+    private Integer addr;
+    /**
      * 当前进程大小
      */
     private Integer size;

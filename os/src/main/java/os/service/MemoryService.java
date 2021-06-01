@@ -20,10 +20,10 @@ public interface MemoryService {
     /**
      * todo: 分配内存的操作
      *
-     * @param myProcess 需要分配内存的进程
-     * @return 分配是否成功, 成功true, 失败false
+     *
+     * @param myPCB@return 分配是否成功, 成功true, 失败false
      */
-    public boolean allocation(MyProcess myProcess);
+    public MyPCB allocation(MyPCB myPCB,MyProcess myProcess);
     /**
      * 查找内存空间中的进程
      *
@@ -37,9 +37,11 @@ public interface MemoryService {
     public boolean remove(MyPCB myPCB);
 
     /**
-     * todo: 通过pcb回收内存
-     * 1. 清空pcb的内容
-     * 2. 将内存上的Process删除或移到外存中
+     * 内存紧凑
      */
-    public boolean removeByPcb(MyPCB myPCB);
+    public void compact();
+
+    public void display();
+    public void display2();
+    public void display3();
 }

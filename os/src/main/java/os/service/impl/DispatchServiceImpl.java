@@ -2,16 +2,16 @@ package os.service.impl;
 
 import os.OSMain;
 import os.enums.MyStatus;
-import os.model.entity.MyJCB;
-import os.model.entity.MyPCB;
-import os.model.entity.MyProcess;
-import os.model.entity.MyResource;
+import os.model.entity.*;
 import os.service.DispatchService;
+import os.service.MemoryService;
 import os.service.ProcessService;
+import os.utils.MyConvert;
 
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
  * fixme: 步骤执行，每个时间单位执行一个。
  */
 public class DispatchServiceImpl implements DispatchService {
-    ProcessService processService = OSMain.processService;
     /**
      * 先来先服务 作业和进程都有
      *
@@ -66,7 +65,7 @@ public class DispatchServiceImpl implements DispatchService {
     public boolean jobDispatch() {
         // 先执行调度算法调整顺序
         LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
-//        System.out.println("原后备队列：" + fcfs);
+        System.out.println("原后备队列：" + fcfs);
         // 取出队首
         MyJCB myJCB = fcfs.getFirst();
         // 按到达时间调度。
@@ -79,17 +78,17 @@ public class DispatchServiceImpl implements DispatchService {
 //                System.out.println(myProcess);
 
                 // 分配PCB
-                MyPCB myPCB = OSMain.pcbPool.allocation(myProcess, myJCB);
-                // 修改队首为2 running状态
+//                MyPCB myPCB = pcbPool.allocation(myProcess, myJCB);
+                MyPCB myPCB = MyConvert.convert(myJCB,myProcess);
+                // 修改后备队列队首为2 running状态
                 myJCB.setState(2);
                 myJCB.setPid(myProcess.getId());
-
+                // todo: 修改内存和pcb池
+                myPCB = OSMain.memoryService.allocation(myPCB,myProcess);
+                OSMain.pcbPool.allocation(myPCB);
                 // 将pcb放入就绪队列
                 OSMain.innerQueue.get(MyStatus.READY).addFirst(myPCB);
                 OSMain.outsideQueue.put(MyStatus.BACK, fcfs);
-                // todo: 修改内存
-                OSMain.memoryService.allocation(myProcess);
-
                 return true;
             } else {
                 if (!OSMain.memoryService.hasAllocation(myJCB)) {
@@ -157,7 +156,7 @@ public class DispatchServiceImpl implements DispatchService {
         // 阻塞被消除的进程全部进入就绪，再次得到执行权时，重新申请资源，执行银行家
         LinkedList<MyPCB> waitList = OSMain.innerQueue.get(MyStatus.WAIT);
         List<MyPCB> collect = waitList.stream().filter(e -> {
-            MyProcess process = processService.getProcessByPid(e.getPid());
+            MyProcess process = OSMain.processService.getProcessByPid(e.getPid());
             List<MyResource> need = process.getNeed();
             for (int i = 0; i < need.size(); i++) {
                 // 有一个资源无法满足，当前进程继续等待
