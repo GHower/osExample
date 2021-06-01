@@ -18,7 +18,7 @@ public class OSMain {
     public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue = null; // 模拟外存
     public static MyPCBPool pcbPool = null;// pcb池
     public static long time = 0;//当前系统时刻,用时间戳表示
-    public static Integer max; // 最大内存
+    public static Integer MEMORY_MAX_SIZE = 1024 * 1024 * 1024; // 最大内存
     //    public static List<MyResource> available = null;// 系统可用资源
     public static int[] available = {10, 10, 9};// 系统可用资源
 
@@ -67,13 +67,13 @@ public class OSMain {
             myProcess.setId(i);
             for (int j = 0; j < 3; j++) {
                 MyResource myResource = new MyResource();
-                myResource.setName("r"+j);
+                myResource.setName("r" + j);
                 myResource.setNumber(4);
                 myResourceList.add(myResource);
             }
             for (int j = 0; j < 3; j++) {
                 MyResource myResource = new MyResource();
-                myResource.setName("r"+j);
+                myResource.setName("r" + j);
                 myResource.setNumber(6);
                 myResourceList1.add(myResource);
             }
@@ -83,7 +83,7 @@ public class OSMain {
             myProcesses.add(myProcess);
         }
 
-        System.out.println(bankService.checkSafe(myPCBS,myProcesses));
+        System.out.println(bankService.checkSafe(myPCBS, myProcesses));
         for (int i = 0; i < available.length; i++) {
             System.out.println(available[i]);
         }
@@ -93,7 +93,7 @@ public class OSMain {
         List<MyResource> myResourceList = new ArrayList<>();
         for (int j = 0; j < 3; j++) {
             MyResource myResource = new MyResource();
-            myResource.setName("p"+j);
+            myResource.setName("p" + j);
             myResource.setNumber(3);
             myResourceList.add(myResource);
         }
@@ -111,7 +111,6 @@ public class OSMain {
         }
         myRequest1.setRequest(myResourceList1);
         System.out.println(bankService.setRequest(myRequest1));*/
-
 
 
         for (int i = 0; i < available.length; i++) {
@@ -162,12 +161,12 @@ public class OSMain {
         List<MyResource> request = process.getRequests();
         if (request != null) {
             // todo: 调用银行家算法
-            if(true){
+            if (true) {
                 // 其他处理....
 
                 // 进入下一时间单位
                 timeNext();
-            }else{
+            } else {
                 dispatchService.blockDispatch();
             }
         }
