@@ -22,12 +22,12 @@ public class OSMain {
     public static MyPCBPool pcbPool = null;// pcb池
     public static long time = 0;//当前系统时刻,用时间戳表示
     public static Integer MEMORY_MAX_SIZE = 1024 * 1024 * 1024; // 最大内存
-    //    public static List<MyResource> available = null;// 系统可用资源
+//    public static List<MyResource> available = null;// 系统可用资源
     public static int[] available = {10, 10, 9};// 系统可用资源
 
     public static JobService jobService = new JobServiceImpl();// 与作业相关的服务
     public static ProcessService processService = new ProcessServiceImpl();// 进程相关的服务
-        public static BankService bankService = new BankServiceImpl();// 银行家算法
+    public static BankService bankService = new BankServiceImpl();// 银行家算法
     public static DispatchService dispatchService = new DispatchServiceImpl();// 调度相关的服务
     public static MemoryService memoryService = new MemoryServiceImpl();// 内存相关的服务
 
@@ -51,11 +51,6 @@ public class OSMain {
                 timeNext();
             }
         },0,1000);
-//        do {
-//            timeNext();
-//            System.out.println("按回车键继续!");
-//            new Scanner(System.in).nextLine();
-//        } while (true);
     }
     /**
      * 阿全的银行家测试
@@ -148,6 +143,8 @@ public class OSMain {
         pcbPool = new MyPCBPool(10); // pcb池 todo: 大小未定
 
         LinkedList<MyJCB> backList = new LinkedList<>();
+        // 作业完成后，从后备中移到完成
+        LinkedList<MyJCB> jobFinishList = new LinkedList<>();
 
         LinkedList<MyPCB> readyList = new LinkedList<>();
         LinkedList<MyPCB> runList = new LinkedList<>();
@@ -155,6 +152,8 @@ public class OSMain {
         LinkedList<MyPCB> finishList = new LinkedList<>();
 
         outsideQueue.put(MyStatus.BACK, backList);
+        outsideQueue.put(MyStatus.FINISH, jobFinishList);
+
         innerQueue.put(MyStatus.READY, readyList);
         innerQueue.put(MyStatus.RUN, runList);
         innerQueue.put(MyStatus.WAIT, waitList);
@@ -174,6 +173,8 @@ public class OSMain {
         System.out.println("就绪队列：" + OSMain.innerQueue.get(MyStatus.READY));
         System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
         System.out.println("阻塞队列：" + innerQueue.get(MyStatus.WAIT));
+        System.out.println("=======内存情况=========");
+        memoryService.display3();
         time++;
     }
 
@@ -203,7 +204,6 @@ public class OSMain {
         // 标记为完成
         first.setStatus(MyStatus.FINISH);
         innerQueue.get(MyStatus.FINISH).addLast(first);
-
     }
 
     boolean canBeDone(MyProcess myProcess) {

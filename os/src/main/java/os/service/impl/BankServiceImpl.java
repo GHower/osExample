@@ -52,6 +52,7 @@ public class BankServiceImpl implements BankService {
      */
 //    int[][] Need = new int[max.length][available.length];
     int[][] Need ;
+
     /**
      * 请求资源矩阵，某个进程t0时刻请求进程{{1,0,1}}
      */
@@ -313,7 +314,6 @@ public class BankServiceImpl implements BankService {
     private  void  setAllocation(List<MyProcess> processList,List<MyResource> resource){
         this.allocation=new int[processList.size()][resource.size()];
         this.max=new int[processList.size()][resource.size()];
-
     }
 
 

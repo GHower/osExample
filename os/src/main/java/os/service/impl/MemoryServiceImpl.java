@@ -308,6 +308,16 @@ public class MemoryServiceImpl implements MemoryService {
                     "\t" + "占用");
         }
     }
+    // 只显示空闲链表
+    @Override
+    public void display4() {
+        System.out.println("起始地址\t空间大小\t使用情况");
+        for (MyMemory myMemory : idleLinked) {
+            System.out.println(myMemory.getAddress()+
+                    "\t" + myMemory.getSize() +
+                    "\t" + "空闲");
+        }
+    }
 
     @Override
     public List<MyProcess> getAllProcess() {

@@ -51,5 +51,6 @@ public interface MemoryService {
     public void display();
     public void display2();
     public void display3();
+    public void display4();
 
 }

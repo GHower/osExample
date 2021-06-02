@@ -12,7 +12,6 @@ import java.util.List;
  * 1. 提供测试数据，生成随机的几个作业
  */
 public class JobServiceImpl implements JobService {
-    public int[] available;
     /**
      * 随机生成测试JCB
      *
