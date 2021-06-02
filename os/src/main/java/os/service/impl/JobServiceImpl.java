@@ -1,5 +1,6 @@
 package os.service.impl;
 
+import os.OSMain;
 import os.model.entity.MyJCB;
 import os.service.JobService;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * 1. 提供测试数据，生成随机的几个作业
  */
 public class JobServiceImpl implements JobService {
+    public int[] available;
     /**
      * 随机生成测试JCB
      *
@@ -33,6 +35,8 @@ public class JobServiceImpl implements JobService {
             myJCB.setSize((int) Math.floor(Math.random()*1024*1024+1));
             myJCBS.addLast(myJCB);
         }
-        return myJCBS;
+        available = OSMain.available;
+        System.out.println(available);
+        return OSMain.dispatchService.FCFS(myJCBS);
     }
 }

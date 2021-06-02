@@ -29,6 +29,11 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
+    public List<MyProcess> getAllProcess() {
+        return OSMain.memoryService.getAllProcess();
+    }
+
+    @Override
     public void putProcessByPid(MyProcess myProcess) {
         OSMain.memoryService.putProcessByPid(myProcess);
     }
@@ -44,12 +49,12 @@ public class ProcessServiceImpl implements ProcessService {
             myProcess.setId(i);
             //fixme: allocation不断增加，need不断修改
 //            if (i % 3 != 0) {
-                myProcess.setMax(testResource(n));
+            myProcess.setMax(testResource(n));
 //                myProcess.setAllocation(testResource(myProcess.getMax()));
-                // 部分进程某时刻不申请资源
+            // 部分进程某时刻不申请资源
 //                myProcess.setNeed(testResource(myProcess.getAllocation()));
-                myProcess.setAllocation(testIncResource(myProcess.getMax(), initResource(n)));
-                myProcess.setRequests(testRequest(myProcess.getMax(), myProcess.getAllocation()));
+            myProcess.setAllocation(testIncResource(myProcess.getMax(), initResource(n)));
+            myProcess.setRequests(testRequest(myProcess.getMax(), myProcess.getAllocation()));
 //            }
             result.add(myProcess);
         }
@@ -63,14 +68,15 @@ public class ProcessServiceImpl implements ProcessService {
         MyProcess myProcess = new MyProcess();
         myProcess.setName("P" + myJCB.getId());
         myProcess.setId(OSMain.pcbPool.size() + 1);
-        myProcess.setMax(testResource(n));
-        // 测试为了看出效果 allocation 初值不设置为0
-//        myProcess.setAllocation(initResource(n));
-        List<MyResource> allocation = testIncResource(myProcess.getMax(), initResource(n));
-        IntStream.range(0,allocation.size()).forEach(i->{
-            OSMain.available[i] -= allocation.get(i).getNumber();
-        });
-        myProcess.setAllocation(allocation);
+        myProcess.setMax(testResource(testResource(n)));
+        // 测试为看出效果 allocation 初值不设置为0
+        myProcess.setAllocation(initResource(n));
+//        List<MyResource> allocation = testIncResource(myProcess.getMax(), initResource(n));
+//        // 这里是没有经过银行家检测的
+//        IntStream.range(0, allocation.size()).forEach(i -> {
+//            OSMain.available[i] -= allocation.get(i).getNumber();
+//        });
+//        myProcess.setAllocation(allocation);
         myProcess.setRequests(testRequest(myProcess.getMax(), myProcess.getAllocation()));
         return myProcess;
     }
@@ -80,15 +86,16 @@ public class ProcessServiceImpl implements ProcessService {
         List<MyResource> request = IntStream.range(0, max.size()).mapToObj(i -> {
             MyResource myResource = new MyResource();
             myResource.setName(max.get(i).getName());
-            myResource.setNumber((int) (Math.random() * (max.get(i).getNumber() - allocation.get(i).getNumber())));
+            myResource.setNumber((int) Math.round(Math.random() * (max.get(i).getNumber() - allocation.get(i).getNumber())));
             return myResource;
         }).collect(Collectors.toList());
         int sum = request.stream().mapToInt(MyResource::getNumber).sum();
-        return sum > 0? testResource(request):null;
+        return sum > 0 ? testResource(request) : null;
     }
+
     @Override
     public List<MyResource> testRequest(MyProcess myProcess) {
-       return testRequest(myProcess.getMax(),myProcess.getAllocation());
+        return testRequest(myProcess.getMax(), myProcess.getAllocation());
     }
 
     @Override
@@ -106,20 +113,20 @@ public class ProcessServiceImpl implements ProcessService {
         return 0;
     }
 
-    // 生成若干个资源
+    // 生成若干个资源,无限制的任意生成
     private List<MyResource> testResource(int n) {
         List<MyResource> result = new ArrayList<>();
         // 生成n个进程
         for (int i = 1; i <= n; i++) {
             MyResource myResource = new MyResource();
             myResource.setName("R" + i);
-            myResource.setNumber((int) (Math.random() * 8));
+            myResource.setNumber((int) (Math.random() * 5));
             result.add(myResource);
         }
         return result;
     }
 
-    // 生成若干个资源,含限制，即随机生成的请求量会被第二个参数所限制
+    // 生成若干个资源,含限制，即随机生成的请求量会被参数所限制
     private List<MyResource> testResource(List<MyResource> resources) {
         List<MyResource> result = new ArrayList<>();
         for (MyResource myResource : resources) {

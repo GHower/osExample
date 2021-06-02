@@ -33,7 +33,11 @@ public interface MemoryService {
      * @return 分配是否成功, 成功true, 失败false
      */
     public MyProcess getProcessByPid(Integer pid);
+    public List<MyProcess> getAllProcess();
+
     public void putProcessByPid(MyProcess myProcess);
+
+
     /**
      * 回收内存
      */
@@ -48,5 +52,4 @@ public interface MemoryService {
     public void display2();
     public void display3();
 
-    List<MyProcess> getAllProcess();
 }

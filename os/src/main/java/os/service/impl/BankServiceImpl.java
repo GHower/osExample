@@ -114,7 +114,6 @@ public class BankServiceImpl implements BankService {
         int tmp = 1;
         int j = 0 ;
         for (MyProcess process : processList) {
-
             List<MyResource> myAllocation = null;
             List<MyResource> myMax = null;
             if (process.getAllocation().size()>0){

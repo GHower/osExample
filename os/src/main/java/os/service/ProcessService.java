@@ -20,6 +20,7 @@ public interface ProcessService {
      * 通过pid从内存中找到进程
      */
     public MyProcess getProcessByPid(Integer pid);
+    public List<MyProcess> getAllProcess();
 
     /**
      * 通过pid修改进程

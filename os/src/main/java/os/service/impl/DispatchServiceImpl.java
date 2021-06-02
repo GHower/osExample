@@ -64,10 +64,10 @@ public class DispatchServiceImpl implements DispatchService {
     @Override
     public boolean jobDispatch() {
         // 先执行调度算法调整顺序
-        LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
+//        LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
 //        System.out.println("原后备队列：" + fcfs);
         // 取出队首
-        MyJCB myJCB = fcfs.getFirst();
+        MyJCB myJCB = OSMain.outsideQueue.get(MyStatus.BACK).removeFirst();
         // 按到达时间调度。
         if (OSMain.time >= myJCB.getArriveTime()) {
             if (OSMain.memoryService.hasAllocation(myJCB)
@@ -88,7 +88,8 @@ public class DispatchServiceImpl implements DispatchService {
                 OSMain.pcbPool.allocation(myPCB);
                 // 将pcb放入就绪队列
                 OSMain.innerQueue.get(MyStatus.READY).addFirst(myPCB);
-                OSMain.outsideQueue.put(MyStatus.BACK, fcfs);
+//                OSMain.outsideQueue.put(MyStatus.BACK, fcfs);
+                OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
                 return true;
             } else {
                 if (!OSMain.memoryService.hasAllocation(myJCB)) {
@@ -102,6 +103,7 @@ public class DispatchServiceImpl implements DispatchService {
                 }
             }
         }
+        OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
         return false;
     }
 
