@@ -44,11 +44,18 @@ public class OSMain {
 //        testBank();
         // 生成测试的jcb 更新 后备作业 队列
         outsideQueue.put(MyStatus.BACK, jobService.testJCB(6));
-        do {
-            timeNext();
-            System.out.println("按回车键继续!");
-            new Scanner(System.in).nextLine();
-        } while (true);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                timeNext();
+            }
+        },0,1000);
+//        do {
+//            timeNext();
+//            System.out.println("按回车键继续!");
+//            new Scanner(System.in).nextLine();
+//        } while (true);
     }
     /**
      * 阿全的银行家测试
@@ -158,10 +165,10 @@ public class OSMain {
      * todo： 进入下一时间单位
      */
     void timeNext() {
+        runProcess();
         // 每个时间都尝试将等待的作业放入内存
         while (dispatchService.jobDispatch()) ;
         dispatchService.proDispatch();
-        runProcess();
         System.out.println("=======当前时刻:[time=" + time + "]=========");
         System.out.println("后备队列：" + OSMain.outsideQueue.get(MyStatus.BACK));
         System.out.println("就绪队列：" + OSMain.innerQueue.get(MyStatus.READY));
@@ -196,6 +203,7 @@ public class OSMain {
         // 标记为完成
         first.setStatus(MyStatus.FINISH);
         innerQueue.get(MyStatus.FINISH).addLast(first);
+
     }
 
     boolean canBeDone(MyProcess myProcess) {

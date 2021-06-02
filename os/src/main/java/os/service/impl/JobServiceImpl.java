@@ -35,8 +35,6 @@ public class JobServiceImpl implements JobService {
             myJCB.setSize((int) Math.floor(Math.random()*1024*1024+1));
             myJCBS.addLast(myJCB);
         }
-        available = OSMain.available;
-        System.out.println(available);
         return OSMain.dispatchService.FCFS(myJCBS);
     }
 }
