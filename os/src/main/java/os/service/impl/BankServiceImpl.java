@@ -216,8 +216,6 @@ public class BankServiceImpl implements BankService {
      */
     @Override
     public boolean setRequest(MyRequest request) {
-
-
         List<MyResource> myResources = request.getRequest();
         System.out.println(map.toString()+"request=================");
         //获取通过id获取map映射对应的allocation下标，在试分配使用

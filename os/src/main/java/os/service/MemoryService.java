@@ -4,6 +4,8 @@ import os.model.entity.MyJCB;
 import os.model.entity.MyPCB;
 import os.model.entity.MyProcess;
 
+import java.util.List;
+
 /**
  * 内存服务
  */
@@ -31,6 +33,7 @@ public interface MemoryService {
      * @return 分配是否成功, 成功true, 失败false
      */
     public MyProcess getProcessByPid(Integer pid);
+    public void putProcessByPid(MyProcess myProcess);
     /**
      * 回收内存
      */
@@ -44,4 +47,6 @@ public interface MemoryService {
     public void display();
     public void display2();
     public void display3();
+
+    List<MyProcess> getAllProcess();
 }

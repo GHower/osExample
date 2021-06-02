@@ -65,7 +65,7 @@ public class DispatchServiceImpl implements DispatchService {
     public boolean jobDispatch() {
         // 先执行调度算法调整顺序
         LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
-        System.out.println("原后备队列：" + fcfs);
+//        System.out.println("原后备队列：" + fcfs);
         // 取出队首
         MyJCB myJCB = fcfs.getFirst();
         // 按到达时间调度。
@@ -108,6 +108,7 @@ public class DispatchServiceImpl implements DispatchService {
     @Override
     public boolean proDispatch() {
         boolean result = false;
+        // 这一步算优先级调度
         LinkedList<MyPCB> spf = SPF(OSMain.innerQueue.get(MyStatus.READY));
         LinkedList<MyPCB> runList = OSMain.innerQueue.get(MyStatus.RUN);
         MyPCB running = runList.size() != 0 ? runList.getFirst() : null;
@@ -123,10 +124,10 @@ public class DispatchServiceImpl implements DispatchService {
                 runList.removeFirst();
                 runList.addLast(first);
                 spf.removeFirst();
+                result = true;
             } else {
                 System.out.println("cpu繁忙，正在执行进程:" + running.getName());
             }
-            result = true;
         } else if (runList.size() == 0 && first != null) {
             first.setStatus(MyStatus.RUN);
             runList.addLast(first);

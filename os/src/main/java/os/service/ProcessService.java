@@ -22,6 +22,11 @@ public interface ProcessService {
     public MyProcess getProcessByPid(Integer pid);
 
     /**
+     * 通过pid修改进程
+     */
+    public void putProcessByPid(MyProcess myProcess);
+
+    /**
      * 生成测试的Process,随机生成
      */
     public List<MyProcess> testProcess();
@@ -42,6 +47,7 @@ public interface ProcessService {
      * 生成资源请求
      */
     List<MyResource> testRequest(List<MyResource> ups, List<MyResource> cur);
+    List<MyResource> testRequest(MyProcess myProcess);
     /**
      * 通过资源名称获取对应数量
      *

@@ -29,13 +29,18 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
+    public void putProcessByPid(MyProcess myProcess) {
+        OSMain.memoryService.putProcessByPid(myProcess);
+    }
+
+    @Override
     public List<MyProcess> testProcess() {
         List<MyProcess> result = new LinkedList<>();
         int n = 3;
         // 生成n个进程
         for (int i = 1; i <= OSMain.innerQueue.get(MyStatus.READY).size(); i++) {
             MyProcess myProcess = new MyProcess();
-            myProcess.setName("p" + i);
+            myProcess.setName("P" + i);
             myProcess.setId(i);
             //fixme: allocation不断增加，need不断修改
 //            if (i % 3 != 0) {
@@ -59,9 +64,13 @@ public class ProcessServiceImpl implements ProcessService {
         myProcess.setName("P" + myJCB.getId());
         myProcess.setId(OSMain.pcbPool.size() + 1);
         myProcess.setMax(testResource(n));
-        // 为了看出效果 allocation 初值不设置为0
+        // 测试为了看出效果 allocation 初值不设置为0
 //        myProcess.setAllocation(initResource(n));
-        myProcess.setAllocation(testIncResource(myProcess.getMax(), initResource(n)));
+        List<MyResource> allocation = testIncResource(myProcess.getMax(), initResource(n));
+        IntStream.range(0,allocation.size()).forEach(i->{
+            OSMain.available[i] -= allocation.get(i).getNumber();
+        });
+        myProcess.setAllocation(allocation);
         myProcess.setRequests(testRequest(myProcess.getMax(), myProcess.getAllocation()));
         return myProcess;
     }
@@ -74,9 +83,13 @@ public class ProcessServiceImpl implements ProcessService {
             myResource.setNumber((int) (Math.random() * (max.get(i).getNumber() - allocation.get(i).getNumber())));
             return myResource;
         }).collect(Collectors.toList());
-        return testResource(request);
+        int sum = request.stream().mapToInt(MyResource::getNumber).sum();
+        return sum > 0? testResource(request):null;
     }
-
+    @Override
+    public List<MyResource> testRequest(MyProcess myProcess) {
+       return testRequest(myProcess.getMax(),myProcess.getAllocation());
+    }
 
     @Override
     public MyPCB getPcbByPid(Integer pid) {
@@ -100,7 +113,7 @@ public class ProcessServiceImpl implements ProcessService {
         for (int i = 1; i <= n; i++) {
             MyResource myResource = new MyResource();
             myResource.setName("R" + i);
-            myResource.setNumber((int) (Math.random() * 5));
+            myResource.setNumber((int) (Math.random() * 8));
             result.add(myResource);
         }
         return result;

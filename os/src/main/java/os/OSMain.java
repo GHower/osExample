@@ -5,9 +5,12 @@ import os.enums.MyStatus;
 import os.model.entity.*;
 import os.service.*;
 import os.service.impl.*;
+import os.utils.Algorithm;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * 服务和队列都置为静态，实际上这是内核的东西，这里做模拟就不管了
@@ -50,7 +53,15 @@ public class OSMain {
         dispatchService.proDispatch();
         System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
         System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
-        runProcess();
+        System.out.println("=======进程执行========");
+//        runProcess();
+        Scanner scanner = new Scanner(System.in);
+        String s;
+        while(true){
+            timeNext();
+            System.out.println("按回车键继续!");
+            s = scanner.nextLine();
+        }
 //        System.out.println("=======阻塞产生========");
 //        dispatchService.blockDispatch();
 //        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
@@ -159,6 +170,10 @@ public class OSMain {
     void timeNext() {
         System.out.println("下一时刻");
         time++;
+        // 每个时间都尝试将等待的作业放入内存
+        while (dispatchService.jobDispatch()) ;
+        dispatchService.proDispatch();
+        runProcess();
     }
 
     /**
@@ -167,35 +182,90 @@ public class OSMain {
      * 2. 进程标记为异常，而不是完成，但也放在完成队列中
      */
     void interruptRun() {
-
+        innerQueue.get(MyStatus.RUN).removeFirst();
     }
 
+    /**
+     * 进程运行完成调用,会将当前运行进程移走，当下一次进程调度时放入新的进程运行
+     */
+    void finishRun() {
+        // 对应的PCB
+        MyPCB first = innerQueue.get(MyStatus.RUN).removeFirst();
+        // 对应的进程对象
+        MyProcess process = processService.getProcessByPid(first.getPid());
+        // 已分配资源释放
+        freeResourceOfProcess(process);
+        // pcb池移除
+        pcbPool.remove(first);
+        // 内存回收
+        memoryService.remove(first);
+    }
+    boolean canBeDone(MyProcess myProcess){
+        List<MyResource> max = myProcess.getMax();
+        List<MyResource> allocation = myProcess.getAllocation();
+        for (int i = 0; i < max.size(); i++) {
+            if (!max.get(i).getNumber().equals(allocation.get(i).getNumber())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * 资源释放操作
+     */
+    void freeResourceOfProcess(MyProcess myProcess){
+        List<MyResource> allocation = myProcess.getAllocation();
+        IntStream.range(0,allocation.size()).forEach(i->{
+            available[i] += allocation.get(i).getNumber();
+        });
+    }
     /**
      * 模拟执行进程
      */
     void runProcess() {
         LinkedList<MyPCB> runList = innerQueue.get(MyStatus.RUN);
-        MyPCB first = runList.getFirst();
+//        List<MyProcess> allProcess = memoryService.getAllProcess();
+
+        MyPCB first = runList.size() > 0 ? runList.getFirst() : null;
+        if (first == null) {
+            System.out.println("没有进程需要运行");
+            return;
+        }
         MyProcess process = processService.getProcessByPid(first.getPid());
         List<MyResource> request = process.getRequests();
         // 这一时刻执行的进程请求量不是null，有申请资源行为
         if (request != null) {
             // todo: 调用银行家算法
             if (true) {
-                /**
-                 * 银行家通过,分配资源，修改allocation
-                 */
+                //银行家通过,分配资源，修改allocation,及系统可用资源available
                 System.out.println("申请资源:" + request);
-
-                // 进入下一时间单位
-                timeNext();
+                List<MyResource> allocation = process.getAllocation();
+                IntStream.range(0, request.size()).forEach(i -> {
+                    available[i] = available[i] - request.get(i).getNumber();
+                    allocation.get(i).setNumber(allocation.get(i).getNumber() + request.get(i).getNumber());
+                });
+                System.out.println("系统资源:" + Arrays.toString(available));
+                System.out.println("进程已分配:" + allocation);
+                // 分配结束 设置20%概率为null不申请,80%可能继续申请
+                process.setRequests(Algorithm.randomBool(0.8) ? processService.testRequest(process) : null);
+                // 修改进程池中的记录
+                processService.putProcessByPid(process);
             } else {
                 dispatchService.blockDispatch();
             }
         } else {
-            // 不申请资源，直接进入下一时间单位
-            timeNext();
+            System.out.println("进程 "+process.getName()+" 本次运行不申请资源");
+            // 80%可能继续申请
+//            process.setRequests(Algorithm.randomBool(0.8) ? processService.testRequest(process) : null);
+            // 修改进程池中的记录
+//            processService.putProcessByPid(process);
         }
+        // todo: 进程如果已分配资源等于最大申请资源，有50%概率会结束
+        if(canBeDone(process) && Algorithm.randomBool(0.8)){
+            finishRun();
+        }
+        // 进入下一时间单位
+//        timeNext();
     }
 
 }

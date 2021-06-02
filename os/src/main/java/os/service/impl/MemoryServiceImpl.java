@@ -96,6 +96,16 @@ public class MemoryServiceImpl implements MemoryService {
         return Optional.orElse(null);
     }
 
+    @Override
+    public void putProcessByPid(MyProcess myProcess) {
+        for (int i=0;i< myProcesses.size();i++) {
+            if(myProcesses.get(i).getId().equals(myProcess.getId())){
+                myProcesses.set(i,myProcess);
+                return;
+            }
+        }
+    }
+
     /**
      * todo: 回收内存
      */
@@ -297,5 +307,10 @@ public class MemoryServiceImpl implements MemoryService {
                     "\t" + OSMain.MEMORY_MAX_SIZE +
                     "\t" + "占用");
         }
+    }
+
+    @Override
+    public List<MyProcess> getAllProcess() {
+        return this.myProcesses;
     }
 }
