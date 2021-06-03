@@ -171,10 +171,12 @@ public class OSMain {
         while (dispatchService.jobDispatch()) ;
         dispatchService.proDispatch();
         System.out.println("=======当前时刻:[time=" + time + "]=========");
-        System.out.println("后备队列：" + OSMain.outsideQueue.get(MyStatus.BACK));
-        System.out.println("就绪队列：" + OSMain.innerQueue.get(MyStatus.READY));
+        System.out.println("后备作业队列：" + outsideQueue.get(MyStatus.BACK));
+        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
         System.out.println("运行队列：" + innerQueue.get(MyStatus.RUN));
         System.out.println("阻塞队列：" + innerQueue.get(MyStatus.WAIT));
+//        System.out.println("完成队列：" + innerQueue.get(MyStatus.FINISH));
+        System.out.println("完成作业队列：" + outsideQueue.get(MyStatus.FINISH));
         System.out.println("=======内存情况=========");
         memoryService.display3();
         time++;
@@ -207,6 +209,24 @@ public class OSMain {
         // 标记为完成
         first.setStatus(MyStatus.FINISH);
         innerQueue.get(MyStatus.FINISH).addLast(first);
+        finishJob(first);
+    }
+
+    /**
+     *  通知 作业完成，将进程对应的作业标记为完成
+     */
+    void finishJob(MyPCB myPCB){
+        Integer jid = myPCB.getJid();
+        LinkedList<MyJCB> backList = outsideQueue.get(MyStatus.BACK);
+        for (int i = 0; i< backList.size(); i++) {
+            if(backList.get(i).getId().equals(jid)){
+                MyJCB remove = backList.remove(i);
+                remove.setState(3);
+                System.out.println("作业 "+remove.getName()+" 已完成********");
+                outsideQueue.get(MyStatus.FINISH).addFirst(remove);
+                break;
+            }
+        }
     }
 
     boolean canBeDone(MyProcess myProcess) {

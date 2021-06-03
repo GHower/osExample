@@ -67,10 +67,12 @@ public class DispatchServiceImpl implements DispatchService {
 //        LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
 //        System.out.println("原后备队列：" + fcfs);
         // 取出队首
-        MyJCB myJCB = OSMain.outsideQueue.get(MyStatus.BACK).removeFirst();
-        // 按到达时间调度。
-        if (OSMain.time >= myJCB.getArriveTime()) {
-            if (OSMain.memoryService.hasAllocation(myJCB)
+        MyJCB myJCB = OSMain.outsideQueue.get(MyStatus.BACK).size() > 0
+                ? OSMain.outsideQueue.get(MyStatus.BACK).removeFirst() : null;
+        if (myJCB!=null) {
+            // 按到达时间调度。
+            if (OSMain.time >= myJCB.getArriveTime()
+                    && OSMain.memoryService.hasAllocation(myJCB)
                     && OSMain.pcbPool.hasNext()
                     && myJCB.getState().equals(1)) {
                 // 创建进程
@@ -79,12 +81,12 @@ public class DispatchServiceImpl implements DispatchService {
 
                 // 分配PCB
 //                MyPCB myPCB = pcbPool.allocation(myProcess, myJCB);
-                MyPCB myPCB = MyConvert.convert(myJCB,myProcess);
+                MyPCB myPCB = MyConvert.convert(myJCB, myProcess);
                 // 修改后备队列队首为2 running状态
                 myJCB.setState(2);
                 myJCB.setPid(myProcess.getId());
                 // todo: 修改内存和pcb池
-                myPCB = OSMain.memoryService.allocation(myPCB,myProcess);
+                myPCB = OSMain.memoryService.allocation(myPCB, myProcess);
                 OSMain.pcbPool.allocation(myPCB);
                 // 将pcb放入就绪队列
                 OSMain.innerQueue.get(MyStatus.READY).addFirst(myPCB);
@@ -102,8 +104,8 @@ public class DispatchServiceImpl implements DispatchService {
                     System.out.println("没有作业等待中");
                 }
             }
+            OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
         }
-        OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
         return false;
     }
 
@@ -170,7 +172,7 @@ public class DispatchServiceImpl implements DispatchService {
             return true;
         }).collect(Collectors.toList());
         System.out.println(collect);
-        return collect.size()>0;
+        return collect.size() > 0;
     }
 
     /**
