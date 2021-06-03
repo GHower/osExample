@@ -22,7 +22,7 @@ public class OSMain {
     public static MyPCBPool pcbPool = null;// pcb池
     public static long time = 0;//当前系统时刻,用时间戳表示
     public static Integer MEMORY_MAX_SIZE = 1024 * 1024 * 1024; // 最大内存
-//    public static List<MyResource> available = null;// 系统可用资源
+    //    public static List<MyResource> available = null;// 系统可用资源
     public static int[] available = {10, 10, 9};// 系统可用资源
 
     public static JobService jobService = new JobServiceImpl();// 与作业相关的服务
@@ -50,12 +50,13 @@ public class OSMain {
             public void run() {
                 timeNext();
             }
-        },0,1000);
+        }, 0, 1000);
     }
+
     /**
      * 阿全的银行家测试
      */
-    void testBank(){
+    void testBank() {
         //        System.out.println("=======阻塞产生========");
 //        dispatchService.blockDispatch();
 //        System.out.println("就绪队列：" + innerQueue.get(MyStatus.READY));
@@ -131,6 +132,7 @@ public class OSMain {
 //            System.out.println(available[i]);
 //        }
     }
+
     /**
      * 初始化
      * 内存中的 就绪、运行、等待、完成 队列
@@ -193,6 +195,7 @@ public class OSMain {
     void finishRun() {
         // 对应的PCB
         MyPCB first = innerQueue.get(MyStatus.RUN).removeFirst();
+        System.out.println("***************进程 "+first.getName()+" 结束了**************");
         // 对应的进程对象
         MyProcess process = processService.getProcessByPid(first.getPid());
         // 已分配资源释放
@@ -245,7 +248,7 @@ public class OSMain {
         if (request != null) {
             // todo: 调用银行家算法
             boolean b = bankService.checkSafe(pcbPool.getPcbPool(), processService.getAllProcess());
-            System.out.println("银行家算法结果:"+b);
+//            System.out.println("银行家算法结果:" + b);
             if (b) {
                 // 银行家通过,分配资源，修改allocation,及系统可用资源available
                 List<MyResource> allocation = process.getAllocation();
@@ -274,6 +277,12 @@ public class OSMain {
         // todo: 进程如果已分配资源等于最大申请资源，有80%概率会结束
         if (canBeDone(process) && Algorithm.randomBool(0.8)) {
             finishRun();
+        } else {
+            // 进程没有结束，则优先级-1，已运行时间+1
+            int newPriority = first.getPriority() - 1;
+            first.setPriority(Math.max(newPriority, 0));
+            first.setRunTime(first.getRunTime() + 1);
+            innerQueue.get(MyStatus.RUN).set(0,first);
         }
         // 进入下一时间单位
 //        timeNext();

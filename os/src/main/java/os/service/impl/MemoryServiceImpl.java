@@ -166,13 +166,13 @@ public class MemoryServiceImpl implements MemoryService {
 //            }
 //        }
         // 移除内存使用,空闲链表的方式
-
+        // fixme: 合并有问题，待改
         int idleLen = idleLinked.size();
         for (int i = 0; i < idleLen; i++) {
             MyMemory cur = idleLinked.get(i);
             // 找到第一个空闲起始位不小于删除点的
             if (myPCB.getAddr() < cur.getAddress()) {
-                MyMemory pre = Math.max(i - 1, 0) != 0 ? idleLinked.get(i - 1) : null;
+                MyMemory pre = i-1 >=  0 ? idleLinked.get(i - 1) : null;
                 // 找到了空闲块，但是前面没有空闲块
                 if (pre == null) {
                     // 如果是连着的，就只修改当前空闲块

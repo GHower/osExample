@@ -278,9 +278,9 @@ public class BankServiceImpl implements BankService {
 
 
         if (flag){
-            for (int i = 0; i < OSMain.available.length; i++) {
-                OSMain.available[i]=maxAva[i];
-            }
+//            for (int i = 0; i < OSMain.available.length; i++) {
+//                OSMain.available[i]=maxAva[i];
+//            }
             System.out.println("setAvailable");
             return;
         }
@@ -300,9 +300,9 @@ public class BankServiceImpl implements BankService {
                 available[i] = available[i] - allocation[j][i];
             }
         }
-        for (int i = 0; i < OSMain.available.length; i++) {
-            OSMain.available[i]=available[i];
-        }
+//        for (int i = 0; i < OSMain.available.length; i++) {
+//            OSMain.available[i]=available[i];
+//        }
 
 
     }
