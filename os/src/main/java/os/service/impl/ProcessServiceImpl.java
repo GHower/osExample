@@ -67,7 +67,7 @@ public class ProcessServiceImpl implements ProcessService {
         int n = 3;
         MyProcess myProcess = new MyProcess();
         myProcess.setName("P" + myJCB.getId());
-        myProcess.setId(OSMain.pcbPool.size() + 1);
+        myProcess.setId(OSMain.pcbPool.nextPid());
         myProcess.setMax(testResource(testResource(n)));
         // 测试为看出效果 allocation 初值不设置为0
         myProcess.setAllocation(initResource(n));
@@ -90,7 +90,7 @@ public class ProcessServiceImpl implements ProcessService {
             return myResource;
         }).collect(Collectors.toList());
         int sum = request.stream().mapToInt(MyResource::getNumber).sum();
-        return sum > 0 ? testResource(request) : null;
+        return sum > 0 ? request : null;
     }
 
     @Override

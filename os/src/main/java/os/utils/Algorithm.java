@@ -13,4 +13,10 @@ public class Algorithm {
     public static boolean randomBool(double p){
         return Math.random() < p;
     }
+    public static int randomRange(int down,int up){
+        return (int) (down + Math.random()*(up-down));
+    }
+    public static long randomRange(long down,long up){
+        return (long) (down + Math.random()*(up-down));
+    }
 }

@@ -65,26 +65,28 @@ public class MyJCB {
 //    /**
 //     * 开始时间
 //     */
-//    private Long startTime = 0D;
+    private Long startTime = 0L;
 //    /**
 //     * 等待时间
 //     */
-//    private Long waitTime = 0D;
+    private Long waitTime = 0L;
 //    /**
 //     * 完成时间
 //     */
-//    private Long finishTime = 0D;
+    private Long finishTime = 0L;
 //    /**
 //     * 运行时间，这是一个时间长度，时间单位为毫秒
 //     */
-//    private Long runTime = 0D;
+    private Long rqTime = 0L;
+
+    private Long runTime = 0L;
 //    /**
 //     * 周转时间
 //     */
-//    private Long turnTime = 0D;
+    private Long turnTime = 0L;
 //    /**
 //     * 带权周转时间
 //     */
-//    private Long weightTime = 0D;
+    private Long weightTime = 0L;
 
 }

@@ -21,9 +21,9 @@ public class OSMain {
     public static Map<MyStatus, LinkedList<MyJCB>> outsideQueue = null; // 模拟外存
     public static MyPCBPool pcbPool = null;// pcb池
     public static long time = 0;//当前系统时刻,用时间戳表示
-    public static Integer MEMORY_MAX_SIZE = 1024 * 1024 * 1024; // 最大内存
-    //    public static List<MyResource> available = null;// 系统可用资源
-    public static int[] available = {10, 10, 9};// 系统可用资源
+    public static Integer MEMORY_MAX_SIZE = 1024 * 1024 * 5; // 最大内存
+        public static List<MyResource> available = null;// 系统可用资源
+//    public static int[] available = {10, 10, 9};// 系统可用资源
 
     public static JobService jobService = new JobServiceImpl();// 与作业相关的服务
     public static ProcessService processService = new ProcessServiceImpl();// 进程相关的服务
@@ -51,6 +51,12 @@ public class OSMain {
                 timeNext();
             }
         }, 0, 1000);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                outsideQueue.get(MyStatus.BACK).addAll(0,jobService.testJCB(Algorithm.randomRange(1,5)));
+            }
+        }, 0, 10000);
     }
 
     /**
@@ -143,6 +149,7 @@ public class OSMain {
         innerQueue = new HashMap<>(); // 内存相关队列
         outsideQueue = new HashMap<>(); // 外存相关队列 map
         pcbPool = new MyPCBPool(10); // pcb池 todo: 大小未定
+        available = new ArrayList<>();
 
         LinkedList<MyJCB> backList = new LinkedList<>();
         // 作业完成后，从后备中移到完成
@@ -160,13 +167,18 @@ public class OSMain {
         innerQueue.put(MyStatus.RUN, runList);
         innerQueue.put(MyStatus.WAIT, waitList);
         innerQueue.put(MyStatus.FINISH, finishList);
+        available.add(new MyResource("R1",10));
+        available.add(new MyResource("R2",10));
+        available.add(new MyResource("R3",9));
     }
 
     /**
      * todo： 进入下一时间单位
      */
     void timeNext() {
-        runProcess();
+        runProcess2();
+        //todo:阻塞队列问题
+//        dispatchService.reReadyDispatch();
         // 每个时间都尝试将等待的作业放入内存
         while (dispatchService.jobDispatch()) ;
         dispatchService.proDispatch();
@@ -179,7 +191,21 @@ public class OSMain {
         System.out.println("完成作业队列：" + outsideQueue.get(MyStatus.FINISH));
         System.out.println("=======内存情况=========");
         memoryService.display3();
+        refreshWaitTime();
+        // 遇10产生作业
         time++;
+//        if(time%10==0){
+//            outsideQueue.get(MyStatus.BACK).addAll(0,jobService.testJCB(Algorithm.randomRange(1,5)));
+//        }
+    }
+    // 刷新等待时间，就绪队列和阻塞队列
+    void refreshWaitTime(){
+        innerQueue.get(MyStatus.READY).forEach(e->{
+            e.setWaitTime(e.getWaitTime()+1);
+        });
+        innerQueue.get(MyStatus.WAIT).forEach(e->{
+            e.setWaitTime(e.getWaitTime()+1);
+        });
     }
 
     /**
@@ -197,7 +223,7 @@ public class OSMain {
     void finishRun() {
         // 对应的PCB
         MyPCB first = innerQueue.get(MyStatus.RUN).removeFirst();
-        System.out.println("***************进程 "+first.getName()+" 结束了**************");
+        System.out.println("***************进程 " + first.getName() + " 结束了**************");
         // 对应的进程对象
         MyProcess process = processService.getProcessByPid(first.getPid());
         // 已分配资源释放
@@ -213,22 +239,22 @@ public class OSMain {
     }
 
     /**
-     *  通知 作业完成，将进程对应的作业标记为完成
+     * 通知 作业完成，将进程对应的作业标记为完成
      */
-    void finishJob(MyPCB myPCB){
+    void finishJob(MyPCB myPCB) {
         Integer jid = myPCB.getJid();
         LinkedList<MyJCB> backList = outsideQueue.get(MyStatus.BACK);
-        for (int i = 0; i< backList.size(); i++) {
-            if(backList.get(i).getId().equals(jid)){
+        for (int i = 0; i < backList.size(); i++) {
+            if (backList.get(i).getId().equals(jid)) {
                 MyJCB remove = backList.remove(i);
                 remove.setState(3);
-                System.out.println("作业 "+remove.getName()+" 已完成********");
+                System.out.println("作业 " + remove.getName() + " 已完成********");
                 outsideQueue.get(MyStatus.FINISH).addFirst(remove);
                 break;
             }
         }
     }
-
+    // J检查max == allocation
     boolean canBeDone(MyProcess myProcess) {
         List<MyResource> max = myProcess.getMax();
         List<MyResource> allocation = myProcess.getAllocation();
@@ -246,7 +272,7 @@ public class OSMain {
     void freeResourceOfProcess(MyProcess myProcess) {
         List<MyResource> allocation = myProcess.getAllocation();
         IntStream.range(0, allocation.size()).forEach(i -> {
-            available[i] += allocation.get(i).getNumber();
+            available.get(i).setNumber(available.get(i).getNumber()+allocation.get(i).getNumber());
         });
     }
 
@@ -256,6 +282,7 @@ public class OSMain {
     void runProcess() {
         LinkedList<MyPCB> runList = innerQueue.get(MyStatus.RUN);
 //        List<MyProcess> allProcess = memoryService.getAllProcess();
+//        System.out.println("系统资源:" + available);
 
         MyPCB first = runList.size() > 0 ? runList.getFirst() : null;
         if (first == null) {
@@ -268,19 +295,18 @@ public class OSMain {
         if (request != null) {
             // todo: 调用银行家算法
             boolean b = bankService.checkSafe(pcbPool.getPcbPool(), processService.getAllProcess());
-//            System.out.println("银行家算法结果:" + b);
+            System.out.println("**************************************银行家算法结果:" + b+"**********************");
             if (b) {
                 // 银行家通过,分配资源，修改allocation,及系统可用资源available
                 List<MyResource> allocation = process.getAllocation();
                 IntStream.range(0, request.size()).forEach(i -> {
-                    available[i] = available[i] - request.get(i).getNumber();
+                    available.get(i).setNumber(available.get(i).getNumber() - request.get(i).getNumber());
                     allocation.get(i).setNumber(allocation.get(i).getNumber() + request.get(i).getNumber());
                 });
-                System.out.println("系统资源:" + Arrays.toString(available));
                 System.out.println("进程 " + process.getName() + " 申请资源:" + request);
-                System.out.println("进程 " + process.getName() + " 最大资源:" + request);
+                System.out.println("进程 " + process.getName() + " 最大资源:" + process.getMax());
                 System.out.println("进程 " + process.getName() + " 已分配:" + allocation);
-                // 分配结束 设置20%概率为null不申请,80%可能继续申请
+                // 分配结束 设置20%概率为null下次不申请,80%可能继续申请
                 process.setRequests(Algorithm.randomBool(0.8) ? processService.testRequest(process) : null);
                 // 修改进程池中的记录
                 processService.putProcessByPid(process);
@@ -290,22 +316,64 @@ public class OSMain {
         } else {
             System.out.println("进程 " + process.getName() + " 本次运行不申请资源");
             // 80%可能继续申请
-            process.setRequests(Algorithm.randomBool(0.8) ? processService.testRequest(process) : null);
+            process.setRequests(Algorithm.randomBool(0.8)
+                    ? processService.testRequest(process) : null);
 //             修改进程池中的记录
             processService.putProcessByPid(process);
         }
         // todo: 进程如果已分配资源等于最大申请资源，有80%概率会结束
         if (canBeDone(process) && Algorithm.randomBool(0.8)) {
             finishRun();
-        } else {
+        } else if(innerQueue.get(MyStatus.RUN).size()>0){
             // 进程没有结束，则优先级-1，已运行时间+1
-            int newPriority = first.getPriority() - 1;
-            first.setPriority(Math.max(newPriority, 0));
-            first.setRunTime(first.getRunTime() + 1);
-            innerQueue.get(MyStatus.RUN).set(0,first);
+            long newPriority = Math.max(first.getPriority() - 1, 0);
+//            first.setPriority(Math.max(newPriority, 0));
+//            first.setRunTime(first.getRunTime() + 1);
+            innerQueue.get(MyStatus.RUN).getFirst().setRunTime(newPriority);
+            innerQueue.get(MyStatus.RUN).getFirst().setPriority(first.getPriority() - 1);
         }
         // 进入下一时间单位
 //        timeNext();
     }
-
+    void runProcess2() {
+        LinkedList<MyPCB> runList = innerQueue.get(MyStatus.RUN);
+//        List<MyProcess> allProcess = memoryService.getAllProcess();
+        System.out.println("系统资源:" + available);
+        MyPCB first = runList.size() > 0 ? runList.getFirst() : null;
+        if (first == null) {
+            System.out.println("没有进程需要运行");
+            return;
+        }
+        MyProcess process = processService.getProcessByPid(first.getPid());
+        List<MyResource> request = process.getRequests();
+        // 执行的进程请求量不是null，有申请资源行为
+        if (request != null) {
+            // todo: 调用银行家算法
+            boolean b = bankService.checkSafe(pcbPool.getPcbPool(), processService.getAllProcess());
+            System.out.println("**************************************银行家算法结果:" + b+"**********************");
+            if (b) {
+                // 银行家通过,分配资源，修改allocation,及系统可用资源available
+                List<MyResource> allocation = process.getAllocation();
+                IntStream.range(0, request.size()).forEach(i -> {
+                    available.get(i).setNumber(available.get(i).getNumber() - request.get(i).getNumber());
+                    allocation.get(i).setNumber(allocation.get(i).getNumber() + request.get(i).getNumber());
+                });
+                System.out.println("进程 " + process.getName() + " 申请资源:" + request);
+                System.out.println("进程 " + process.getName() + " 最大资源:" + process.getMax());
+                System.out.println("进程 " + process.getName() + " 已分配:" + allocation);
+                // 分配结束 请求为null
+                process.setRequests(null);
+                // 修改进程池中的记录
+                processService.putProcessByPid(process);
+            } else {
+                dispatchService.blockDispatch();
+            }
+        }
+        // 已运行时间 +1
+        innerQueue.get(MyStatus.RUN).getFirst().setRunTime(first.getRunTime() + 1);
+        // todo: 进程如果运行时间到达就结束
+        if(first.getRunTime().equals(first.getRqTime())){
+            finishRun();
+        }
+    }
 }

@@ -23,7 +23,8 @@ public interface MemoryService {
      * todo: 分配内存的操作
      *
      *
-     * @param myPCB@return 分配是否成功, 成功true, 失败false
+     * @param myPCB
+     * @return 分配是否成功, 成功true, 失败false
      */
     public MyPCB allocation(MyPCB myPCB,MyProcess myProcess);
     /**

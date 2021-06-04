@@ -1,11 +1,15 @@
 package os.utils;
 
+import os.OSMain;
 import os.enums.MyStatus;
 import os.model.entity.MyJCB;
 import os.model.entity.MyPCB;
 import os.model.entity.MyProcess;
+import os.model.entity.MyResource;
 
 import java.text.DecimalFormat;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * 转换类
@@ -28,11 +32,12 @@ public class MyConvert {
         MyPCB myPCB = new MyPCB();
         myPCB.setPid(myProcess.getId());
         myPCB.setStatus(MyStatus.READY);
-        myPCB.setPriority(1);
         myPCB.setJid(myJCB.getId());
         myPCB.setPriority(myJCB.getPriority());
         myPCB.setName(myProcess.getName());
         myPCB.setSize(myJCB.getSize());
+        myPCB.setRqTime(myJCB.getRqTime());
+        myPCB.setStartTime(OSMain.time);
         return myPCB;
     }
     // 转换显示方式
@@ -55,5 +60,9 @@ public class MyConvert {
             result =  num + "B";
         }
         return result;
+    }
+    public static int[] convertToArray(List<MyResource> myResources) {
+        return myResources.stream()
+                .mapToInt(MyResource::getNumber).toArray();
     }
 }

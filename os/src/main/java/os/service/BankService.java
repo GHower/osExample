@@ -25,5 +25,5 @@ public interface BankService {
      * @return 安全返回true
      * 说明：执行该方法之前当前对象必须先执行checkSafe方法进行对应数据的初始化
      */
-    public boolean setRequest(MyRequest request);
+//    public boolean setRequest(MyRequest request);
 }

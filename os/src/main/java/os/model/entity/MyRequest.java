@@ -1,9 +1,13 @@
 package os.model.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class MyRequest {
     /**
      * 对应进程的PID,进程标识符,即 MyPCB.pid => MyProcess.id

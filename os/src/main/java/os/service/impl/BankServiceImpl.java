@@ -6,6 +6,7 @@ import os.model.entity.MyProcess;
 import os.model.entity.MyRequest;
 import os.model.entity.MyResource;
 import os.service.BankService;
+import os.utils.MyConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,7 +178,7 @@ public class BankServiceImpl implements BankService {
         /**
          * 设置available矩阵
          */
-        this.setAvailable(OSMain.available,false);
+        this.setAvailable(MyConvert.convertToArray(OSMain.available),false);
         /**
          * 设置work矩阵
          */
@@ -191,8 +192,8 @@ public class BankServiceImpl implements BankService {
         setTmpAvailable();
         setTmpNeed();
         setTmpWork();
-        System.out.println(map);
-        printSystemVariable();
+//        System.out.println(map);
+//        printSystemVariable();
         return SecurityAlgorithm();
         /**
          *
@@ -207,62 +208,17 @@ public class BankServiceImpl implements BankService {
     }
 
     /**
-     *申请资源
-     * 申请失败，可用资源应该是试分配之前的数据    且试分配的数据更正为该时刻的数据便下次申请资源使用
-     * 申请成功后可用资源才修改为试分配的数据
-     *
-     * @param request 某一时刻的进程申请资源
-     * @return 是否安全 true | f
-     */
-    @Override
-    public boolean setRequest(MyRequest request) {
-        List<MyResource> myResources = request.getRequest();
-        System.out.println(map.toString()+"request=================");
-        //获取通过id获取map映射对应的allocation下标，在试分配使用
-        num = (int) map.get(request.getId());
-
-        this.Request = new int[tmpAllocation.length][tmpAvailable.length];
-
-
-        /**
-         * 设置Request矩阵
-         */
-        for (int j = 0; j < tmpAvailable.length; j++) {
-            MyResource resource = myResources.get(j);
-
-            //TODO:根据资源名进行排序，这样做即便开始顺序是乱的，也能完成
-
-            Request[num][j] = resource.getNumber();
-        }
-
-
-        /**
-         * 打印需要申请的资源
-         */
-        System.out.print("进程P" + num + "对各资源请求Request：("  );
-        for (int i = 0; i < Request[num].length; i++) {
-            System.out.print(Request[num][i]+",");
-        }
-        System.out.println(").");
-        System.out.println();
-        //设置申请资源标志位
-        T=true;
-        return BankerAlgorithm();
-    }
-
-    /**
      * TODO:设置Max矩阵
      */
     private void setMax() {
 //        int[][] max = {{8,7},{5,2},{6,6},{1,1}};
-
     }
 
     /**
      * 设置Need矩阵
      */
     private void  setNeed(){
-        System.out.println("setNeed");
+//        System.out.println("setNeed");
         this.Need = new int[max.length][available.length];
         for (int i = 0; i < max.length; i++) {//设置Need矩阵
             for (int j = 0; j < available.length; j++) {
@@ -275,20 +231,18 @@ public class BankServiceImpl implements BankService {
      * 注意引用类型是赋值地址
      */
     private  void setAvailable(int[] ava,boolean flag){
+//        if (flag){
+////            for (int i = 0; i < OSMain.available.length; i++) {
+////                OSMain.available[i]=maxAva[i];
+////            }
+////            System.out.println("setAvailable");
+//            return;
+//        }
+        available=new int[OSMain.available.size()];
+        maxAva=new int[OSMain.available.size()];
 
-
-        if (flag){
-//            for (int i = 0; i < OSMain.available.length; i++) {
-//                OSMain.available[i]=maxAva[i];
-//            }
-            System.out.println("setAvailable");
-            return;
-        }
-        available=new int[OSMain.available.length];
-        maxAva=new int[OSMain.available.length];
-
-        for (int i = 0; i < OSMain.available.length; i++) {
-            maxAva[i]=OSMain.available[i];
+        for (int i = 0; i < OSMain.available.size(); i++) {
+            maxAva[i]=OSMain.available.get(i).getNumber();
         }
 
         for (int i = 0; i < available.length; i++) {
@@ -477,10 +431,10 @@ public class BankServiceImpl implements BankService {
          *      如果完成进程数是等于所有进程数的，则意味着有安全序列。
          */
         while (count < max.length) {
-            if(flag){
-                System.out.println("进程  "+"   Work  "+"   Alloction "+"    Need  "+"     Work+Alloction ");
-                flag = false;
-            }
+//            if(flag){
+////                System.out.println("进程  "+"   Work  "+"   Alloction "+"    Need  "+"     Work+Alloction ");
+//                flag = false;
+//            }
             for (int i = 0; i < max.length; i++) {
                 /**
                  * 动态判断  需要额外写方法实现
@@ -488,11 +442,11 @@ public class BankServiceImpl implements BankService {
                  * Finish[i]==false&&Need[i][0]<=Work[0]&&Need[i][1]<=Work[1]
                  */
                 if (isWork(Finish,i)) {//判断条件
-                    System.out.print("P"+i+"  ");
-                    for (int k = 0; k < tmpAvailable.length; k++){
-                        System.out.print(tmpWork[k]+"  ");
-                    }
-                    System.out.print("|  ");
+//                    System.out.print("P"+i+"  ");
+//                    for (int k = 0; k < tmpAvailable.length; k++){
+//                        System.out.print(tmpWork[k]+"  ");
+//                    }
+//                    System.out.print("|  ");
 
                     /**
                      * work + allocation = work
@@ -508,37 +462,37 @@ public class BankServiceImpl implements BankService {
 
                     count++;//满足进程数加1
 
-                    for(int j=0;j<tmpAvailable.length;j++){
-                        System.out.print(tmpAllocation[i][j]+"  ");
-                    }
-                    System.out.print("|  ");
-                    for(int j=0;j<tmpAvailable.length;j++){
-                        System.out.print(tmpNeed[i][j]+"  ");
-                    }
-                    System.out.print("|  ");
-                    for(int j=0;j<tmpAvailable.length;j++){
-                        System.out.print(tmpWork[j]+"  ");
-                    }
-                    System.out.println(Finish[i]==true?"完成":"未完成");
-                    System.out.println();
+//                    for(int j=0;j<tmpAvailable.length;j++){
+//                        System.out.print(tmpAllocation[i][j]+"  ");
+//                    }
+//                    System.out.print("|  ");
+//                    for(int j=0;j<tmpAvailable.length;j++){
+//                        System.out.print(tmpNeed[i][j]+"  ");
+//                    }
+//                    System.out.print("|  ");
+//                    for(int j=0;j<tmpAvailable.length;j++){
+//                        System.out.print(tmpWork[j]+"  ");
+//                    }
+//                    System.out.println(Finish[i]==true?"完成":"未完成");
+//                    System.out.println();
                 }
 
             }
             circle++;//循环圈数加1
 
             if(count== max.length){//判断是否满足所有进程需要
-                System.out.print("此时存在一个安全序列：");
-                for (int i = 0; i< max.length;i++){//输出安全序列
-                    System.out.print("P"+S[i]+" ");
-                }
-                System.out.println("故当前可分配！");
+//                System.out.print("此时存在一个安全序列：");
+//                for (int i = 0; i< max.length;i++){//输出安全序列
+//                    System.out.print("P"+S[i]+" ");
+//                }
+//                System.out.println("故当前可分配！");
                 //设置真证的数据
                 setTmpAllocationToAll();
                 setTmpAvailableToAva();
                 setTmpNeedToNeed();
                 setTmpWorkToWork();
-                setAvailable(OSMain.available,true);
-                System.out.println("安全序列=================");
+                setAvailable(MyConvert.convertToArray(OSMain.available),true);
+//                System.out.println("安全序列=================");
                 return true;//跳出循环
             }
             if(count<circle){//判断完成进程数是否小于循环圈数
@@ -579,12 +533,12 @@ public class BankServiceImpl implements BankService {
             /**
              * TODO:抛出异常
              */
-            System.out.println("进程P" + num + "请求已经超出最大需求量Need.");
+//            System.out.println("进程P" + num + "请求已经超出最大需求量Need.");
             return false;
         }
 
-        printSystemVariable();
-        System.out.println("现在进入安全算法：");
+//        printSystemVariable();
+//        System.out.println("现在进入安全算法：");
         return SecurityAlgorithm();
 
     }

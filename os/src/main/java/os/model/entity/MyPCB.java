@@ -65,6 +65,10 @@ public class MyPCB {
      */
     private Long finishTime = 0L;
     /**
+     * 所需运行时间
+     */
+    private Long rqTime = 0L;
+    /**
      * 运行时间，这是一个时间长度，时间单位为毫秒
      */
     private Long runTime = 0L;

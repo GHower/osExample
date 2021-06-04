@@ -8,10 +8,7 @@ import os.service.MemoryService;
 import os.service.ProcessService;
 import os.utils.MyConvert;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -64,13 +61,15 @@ public class DispatchServiceImpl implements DispatchService {
     @Override
     public boolean jobDispatch() {
         // 先执行调度算法调整顺序
-//        LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
+        LinkedList<MyJCB> fcfs = FCFS(OSMain.outsideQueue.get(MyStatus.BACK));
 //        System.out.println("原后备队列：" + fcfs);
         // 取出队首
-        MyJCB myJCB = OSMain.outsideQueue.get(MyStatus.BACK).size() > 0
-                ? OSMain.outsideQueue.get(MyStatus.BACK).removeFirst() : null;
+        MyJCB myJCB = fcfs.size() > 0
+                ? fcfs.getFirst() : null;
         if (myJCB!=null) {
             // 按到达时间调度。
+            System.out.println("pcb池的使用:"+OSMain.pcbPool.size());
+//            System.out.println("作业"+myJCB.getName()+"到达时间:"+myJCB.getArriveTime());
             if (OSMain.time >= myJCB.getArriveTime()
                     && OSMain.memoryService.hasAllocation(myJCB)
                     && OSMain.pcbPool.hasNext()
@@ -89,9 +88,15 @@ public class DispatchServiceImpl implements DispatchService {
                 myPCB = OSMain.memoryService.allocation(myPCB, myProcess);
                 OSMain.pcbPool.allocation(myPCB);
                 // 将pcb放入就绪队列
-                OSMain.innerQueue.get(MyStatus.READY).addFirst(myPCB);
-//                OSMain.outsideQueue.put(MyStatus.BACK, fcfs);
-                OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
+                OSMain.innerQueue.get(MyStatus.READY).addLast(myPCB);
+//                OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
+//                OSMain.outsideQueue.get(MyStatus.BACK)
+                fcfs.set(0,myJCB);
+                OSMain.outsideQueue.put(MyStatus.BACK, fcfs);
+
+                System.out.println("作业 "+myJCB.getName()+" 被高级调度");
+                System.out.println("对应进程: "+myPCB.getName() +
+                        " | 占用起始地址:"+ myPCB.getAddr()+"--空间大小:"+myPCB.getSize());
                 return true;
             } else {
                 if (!OSMain.memoryService.hasAllocation(myJCB)) {
@@ -104,7 +109,8 @@ public class DispatchServiceImpl implements DispatchService {
                     System.out.println("没有作业等待中");
                 }
             }
-            OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
+            OSMain.outsideQueue.put(MyStatus.BACK, fcfs);
+//            OSMain.outsideQueue.get(MyStatus.BACK).addLast(myJCB);
         }
         return false;
     }
@@ -122,11 +128,12 @@ public class DispatchServiceImpl implements DispatchService {
             // 队首进程优先级大于运行中的进程
             if (first.getPriority() > running.getPriority()) {
                 first.setStatus(MyStatus.RUN);
-                // 将当前运行的进程放回就绪
+                // 将当前运行的进程放回就绪,且优先级-1
+                running.setPriority(Math.max(running.getPriority()-1,0));
                 spf.addLast(running);
+                runList.addLast(first);
                 // 将队首放入运行
                 runList.removeFirst();
-                runList.addLast(first);
                 spf.removeFirst();
                 result = true;
             } else {
@@ -160,19 +167,27 @@ public class DispatchServiceImpl implements DispatchService {
     public boolean reReadyDispatch() {
         // 阻塞被消除的进程全部进入就绪，再次得到执行权时，重新申请资源，执行银行家
         LinkedList<MyPCB> waitList = OSMain.innerQueue.get(MyStatus.WAIT);
-        List<MyPCB> collect = waitList.stream().filter(e -> {
+//        List<MyPCB> rmList = new ArrayList<>();
+
+        // 不需要移走的
+        LinkedList<MyPCB> collect = waitList.stream().filter(e -> {
             MyProcess process = OSMain.processService.getProcessByPid(e.getPid());
-            List<MyResource> need = process.getNeed();
-            for (int i = 0; i < need.size(); i++) {
+            List<MyResource> requests = process.getRequests();
+            boolean flag = true;
+            for (int i = 0; requests != null && i < requests.size(); i++) {
                 // 有一个资源无法满足，当前进程继续等待
-                if (need.get(i).getNumber() > OSMain.available[i]) {
-                    return false;
+                if (requests.get(i).getNumber() > OSMain.available.get(i).getNumber()) {
+                    flag = false;
+                    break;
                 }
             }
-            return true;
-        }).collect(Collectors.toList());
-        System.out.println(collect);
-        return collect.size() > 0;
+//            if (flag) {
+//                OSMain.innerQueue.get(MyStatus.WAIT).add(e);
+//            }
+            return !flag;
+        }).collect(Collectors.toCollection(LinkedList::new));
+        OSMain.innerQueue.put(MyStatus.WAIT,collect);
+        return waitList.size() > 0;
     }
 
     /**
