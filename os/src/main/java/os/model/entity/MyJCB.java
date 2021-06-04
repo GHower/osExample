@@ -62,31 +62,53 @@ public class MyJCB {
 //     * 到达时间
 //     */
     private Long arriveTime = 0L;
-//    /**
+    //    /**
 //     * 开始时间
 //     */
     private Long startTime = 0L;
-//    /**
+    //    /**
 //     * 等待时间
 //     */
     private Long waitTime = 0L;
-//    /**
+    //    /**
 //     * 完成时间
 //     */
     private Long finishTime = 0L;
-//    /**
+    //    /**
 //     * 运行时间，这是一个时间长度，时间单位为毫秒
 //     */
     private Long rqTime = 0L;
 
     private Long runTime = 0L;
-//    /**
+    //    /**
 //     * 周转时间
 //     */
     private Long turnTime = 0L;
-//    /**
+    //    /**
 //     * 带权周转时间
 //     */
     private Long weightTime = 0L;
 
+    @Override
+    public String toString() {
+        return name+"{" +
+                " jid=" + id +
+                ", pid=" + pid +
+                ", 优先级=" + priority +
+                ", 提交用户='" + username + '\'' +
+                ", 作业大小=" + size +
+                ", 状态=" + stateMap(state) +
+                ", 提交时间=" + arriveTime +
+                ", 等待时间=" + waitTime +
+                ", 完成时间=" + finishTime +
+                ", 所需时间=" + rqTime +
+                ", 运行时间=" + runTime +
+//                ", 周转时间=" + turnTime +
+//                ", 带权周转时间=" + weightTime +
+                '}';
+    }
+
+    private String stateMap(Integer state) {
+        return state == 1 ? "等待中" : state == 2 ? "运行中" : "已完成";
+    }
 }

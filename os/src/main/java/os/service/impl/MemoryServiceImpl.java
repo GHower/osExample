@@ -118,6 +118,11 @@ public class MemoryServiceImpl implements MemoryService {
         }
     }
 
+    @Override
+    public int availableMemory() {
+        return idleLinked.stream().mapToInt(MyMemory::getSize).sum();
+    }
+
     /**
      * todo: 回收内存
      */
@@ -264,7 +269,7 @@ public class MemoryServiceImpl implements MemoryService {
     }
     // 检查需不需要紧凑  todo 待检查！
     private boolean needCompact(){
-        double sum = idleLinked.stream().mapToDouble(MyMemory::getSize).sum();
+        double sum = availableMemory();
         return OSMain.MEMORY_MAX_SIZE / sum < 0.8;
     }
     /**
@@ -324,7 +329,7 @@ public class MemoryServiceImpl implements MemoryService {
         for (MyMemory myMemory : idleLinked) {
             if (myMemory.getAddress()!=start) {
                 System.out.println(start+
-                        "\t" + myMemory.getAddress() +
+                        "\t" + (myMemory.getAddress()-start) +
                         "\t" + "占用");
             }
             System.out.println(myMemory.getAddress()+
@@ -353,4 +358,6 @@ public class MemoryServiceImpl implements MemoryService {
     public List<MyProcess> getAllProcess() {
         return this.myProcesses;
     }
+
+
 }

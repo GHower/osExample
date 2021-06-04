@@ -431,10 +431,10 @@ public class BankServiceImpl implements BankService {
          *      如果完成进程数是等于所有进程数的，则意味着有安全序列。
          */
         while (count < max.length) {
-//            if(flag){
-////                System.out.println("进程  "+"   Work  "+"   Alloction "+"    Need  "+"     Work+Alloction ");
-//                flag = false;
-//            }
+            if(flag){
+//                System.out.println("进程  "+"   Work  "+"   Alloction "+"    Need  "+"     Work+Alloction ");
+                flag = false;
+            }
             for (int i = 0; i < max.length; i++) {
                 /**
                  * 动态判断  需要额外写方法实现
@@ -442,6 +442,7 @@ public class BankServiceImpl implements BankService {
                  * Finish[i]==false&&Need[i][0]<=Work[0]&&Need[i][1]<=Work[1]
                  */
                 if (isWork(Finish,i)) {//判断条件
+                    // todo:名字问题
 //                    System.out.print("P"+i+"  ");
 //                    for (int k = 0; k < tmpAvailable.length; k++){
 //                        System.out.print(tmpWork[k]+"  ");
@@ -473,7 +474,7 @@ public class BankServiceImpl implements BankService {
 //                    for(int j=0;j<tmpAvailable.length;j++){
 //                        System.out.print(tmpWork[j]+"  ");
 //                    }
-//                    System.out.println(Finish[i]==true?"完成":"未完成");
+//                    System.out.println(Finish[i] ?"完成":"未完成");
 //                    System.out.println();
                 }
 

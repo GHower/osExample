@@ -189,7 +189,7 @@ public class OSMain {
         System.out.println("阻塞队列：" + innerQueue.get(MyStatus.WAIT));
 //        System.out.println("完成队列：" + innerQueue.get(MyStatus.FINISH));
         System.out.println("完成作业队列：" + outsideQueue.get(MyStatus.FINISH));
-        System.out.println("=======内存情况=========");
+        System.out.println("=======内存情况(总空闲:"+memoryService.availableMemory()+")=========");
         memoryService.display3();
         refreshWaitTime();
         // 遇10产生作业
@@ -354,18 +354,20 @@ public class OSMain {
             if (b) {
                 // 银行家通过,分配资源，修改allocation,及系统可用资源available
                 List<MyResource> allocation = process.getAllocation();
+                System.out.println("进程 " + process.getName() + " 分配前:" + process.getAllocation());
                 IntStream.range(0, request.size()).forEach(i -> {
                     available.get(i).setNumber(available.get(i).getNumber() - request.get(i).getNumber());
                     allocation.get(i).setNumber(allocation.get(i).getNumber() + request.get(i).getNumber());
                 });
                 System.out.println("进程 " + process.getName() + " 申请资源:" + request);
                 System.out.println("进程 " + process.getName() + " 最大资源:" + process.getMax());
-                System.out.println("进程 " + process.getName() + " 已分配:" + allocation);
+                System.out.println("进程 " + process.getName() + " 分配后:" + allocation);
                 // 分配结束 请求为null
                 process.setRequests(null);
                 // 修改进程池中的记录
                 processService.putProcessByPid(process);
             } else {
+                System.out.println("银行家未通过！阻塞进程:"+first.getName());
                 dispatchService.blockDispatch();
             }
         }

@@ -38,7 +38,7 @@ public interface MemoryService {
 
     public void putProcessByPid(MyProcess myProcess);
 
-
+    public int availableMemory();
     /**
      * 回收内存
      */

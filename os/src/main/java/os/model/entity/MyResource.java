@@ -20,4 +20,9 @@ public class MyResource {
      * 使用的数量
      */
     private Integer number;
+
+    @Override
+    public String toString() {
+        return name+"( "+number+" )";
+    }
 }

@@ -81,5 +81,22 @@ public class MyPCB {
      */
     private Long weightTime = 0L;
 
-
+    @Override
+    public String toString() {
+        return name +
+                "{" +
+                " pid=" + pid +
+                ", 优先级=" + priority +
+                ", 进程地址=" + addr +
+                ", 进程大小=" + size +
+                ", 状态=" + status +
+                ", 提交时间=" + arriveTime +
+                ", 所需时间=" + rqTime +
+                ", 运行时间=" + runTime +
+                ", 等待时间=" + waitTime +
+                ", 完成时间=" + finishTime +
+//                ", 周转时间=" + turnTime +
+//                ", 带权周转时间=" + weightTime +
+                '}';
+    }
 }
