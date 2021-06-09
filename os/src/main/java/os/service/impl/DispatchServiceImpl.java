@@ -68,7 +68,11 @@ public class DispatchServiceImpl implements DispatchService {
                 ? fcfs.getFirst() : null;
         if (myJCB!=null) {
             // 按到达时间调度。
-            System.out.println("pcb池的使用:"+OSMain.pcbPool.size());
+            System.out.println("pcb池的使用情况: " +
+                    "{总数:"+OSMain.pcbPool.getMaxSize()+
+                    ", 空闲:"+OSMain.pcbPool.getRemain()+
+                    ", 使用:"+OSMain.pcbPool.getPcbPool().size()+"}"
+            );
 //            System.out.println("作业"+myJCB.getName()+"到达时间:"+myJCB.getArriveTime());
             if (OSMain.time >= myJCB.getArriveTime()
                     && OSMain.memoryService.hasAllocation(myJCB)
