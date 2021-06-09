@@ -4,7 +4,6 @@ import config.OSConfig;
 import users.OSUser;
 
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * 进程实体,包括进程实际执行的操作

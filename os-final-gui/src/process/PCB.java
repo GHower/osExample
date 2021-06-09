@@ -26,8 +26,6 @@ public class PCB {
 
     // JID，为了看出作业完成而保留
     public int jid;
-    // 页表（分页存储模型）
-    //    public  Vector<Page> pageTable = new Vector<Page>();
 
     //一个进程新建立时做出的基本信息初始化
     public PCB(int PID, int type, int priority, int memory, int time_needed) {
@@ -36,7 +34,5 @@ public class PCB {
         this.priority = priority;
         this.memory = memory;
         this.time_needed = time_needed;
-
-//        this.next = null;
     }
 }
