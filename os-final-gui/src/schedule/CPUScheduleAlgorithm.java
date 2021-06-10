@@ -86,9 +86,6 @@ public class CPUScheduleAlgorithm {
                     OSConfig.ready_list.remove(ready);
                     OSConfig.running_list.addLast(ready);
                     OSConfig.ready_list.addLast(running);
-//                    running.time_needed -= running.process.time_used; // 总共所需时间减去时间片
-//                    running.process.time_used = 0;
-//                    ready.process.time_waited = 0;
                 } else {
                     break;
                 }

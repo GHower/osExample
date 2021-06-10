@@ -1,5 +1,6 @@
 package file_system;
 
+import client.views.DiskAndFileWindow;
 import config.OSConfig;
 import disk_management.HandelDisk;
 import disk_management.iNode;
@@ -28,8 +29,8 @@ public class Dentry implements Serializable {
 	public boolean isDir;// 文件类型
 
 	public iNode inode;// 指向该文件或目录的指针
-
-	public TreeMap<String, Dentry> dirTree = new TreeMap<>();// 目录下的文件树
+	// 目录下的文件树
+	public TreeMap<String, Dentry> dirTree = new TreeMap<>();
 
 	public Dentry(String dirName, boolean isDir, iNode inode) {
 		this.dirName = dirName;
@@ -100,12 +101,11 @@ public class Dentry implements Serializable {
 
 	// 【查找文件】
 	// 从绝对路径中查找到文件
-	// 如果输入current就代表从当前路径开始
+	// 如果输入.就代表从当前路径开始
 	public static Dentry searchFile(String path) {
 		String[] paths = path.split("/");
-
 		Dentry current = OSConfig.ROOT;
-		if(!paths[0].equals("."))
+		if(!(paths[0].isEmpty() || paths[0].equals(".")))
 			return null;
 		int length = paths.length;
 		for (int i = 1; i < length; i++) {
@@ -120,14 +120,21 @@ public class Dentry implements Serializable {
 
 	// 【更改当前路径】
 	// 从绝对路径中查找到目录
-	// 如果输入current就代表从当前路径开始
+	// 如果输入.就代表从当前路径开始
 	public Dentry cd(String path) {
 		Dentry current;
 		String[] paths = path.split("/");
-		if (paths[0].equals("current")) {
-			current = this;
-		} else {
+		if (paths[0].isEmpty()) {
 			current = OSConfig.ROOT;
+		} else if(paths[0].equals(".")){
+			current = this;
+		}else{ // 相对路径先查有没有这个目录
+			if (this.dirTree.containsKey(paths[0])) {
+				current = this;
+			}else{
+				// todo: 报错，当前路径下没找到
+				return null;
+			}
 		}
 		int length = paths.length;
 		for (int i = 1; i < length; i++) {
@@ -136,12 +143,10 @@ public class Dentry implements Serializable {
 				return null;
 			current = current.dirTree.get(tmpPathString);
 		}
-		if (current.isDir == false)
+		if (!current.isDir)
 			return null;
-
 		else
 			return current;
-
 	}
 
 	// 【创建文件】
@@ -149,14 +154,14 @@ public class Dentry implements Serializable {
 	// 返回为0代表创建成功；返回为1代表文件重名；返回为2代表磁盘空间不足
 	public String creatFile(String name, String owner, String group, boolean isDir) {
 		// 文件已重名
-		if (containsFile(name) == true)
+		if (containsFile(name))
 			return "<错误> 文件"+name+"已存在!";
 
 		// 创建文件
 		iNode newfile = new iNode(name, owner, group, 0, isDir);
 
 		// 为文件分配内存
-		if (OSConfig.superBlock.vectorMap.allocateDisk(newfile) == false)
+		if (!OSConfig.superBlock.vectorMap.allocateDisk(newfile))
 			return "<错误> 磁盘空间不足 !";
 
 		// 在该目录索引节点中加入该文件的索引节点
@@ -164,7 +169,6 @@ public class Dentry implements Serializable {
 
 		// 为该文件创立路径
 		newfile.dentry.setPath(path);
-
 		return "成功创建文件   " + name;
 	}
 
@@ -176,18 +180,18 @@ public class Dentry implements Serializable {
 
 		// 该目录下不存在此文件
 		if (containsFile(name) == false)
-			return "<错误> target File [" + name + "] does not exist!";
+			return "<错误> 目标文件 [" + name + "] 不存在!";
 
 		Dentry targetDentry = dirTree.get(name);
 
 		// 文件为目录且目录不为空
 		if (targetDentry.isDir == true && targetDentry.dirTree.size() != 0)
-			return "<错误> cannot delete Directory (directory is not empty)!";
+			return "<错误> 不能删除非该目录 (目录不为空)!";
 
 		if (user.userName.equals(targetDentry.inode.owner) || user.userName.equals("root")) {
 
 			if (targetDentry.inode.write_locked == true || targetDentry.inode.read_locked > 0)
-				return "<错误> File is busy !";
+				return "<错误> 文件繁忙 !";
 
 			// 从目录项中删除该结点，并释放内存
 			iNode target = dirTree.get(name).inode;
@@ -197,9 +201,9 @@ public class Dentry implements Serializable {
 			if (target.diskTable.size() != 0)
 				HandelDisk.ClearDisk(target.diskTable);// 抹除磁盘数据
 
-			return "successfully  [Delete]   " + name;
+			return "成功  [Delete]   " + name;
 		} else {
-			return "<错误> Permission Denied !";
+			return "<错误> 权限不足 !";
 		}
 	}
 
@@ -296,7 +300,7 @@ public class Dentry implements Serializable {
 			return "<错误> Permission Denied !";
 
 		if (File.inode.read_locked > 0 || File.inode.write_locked == true)
-			return "<错误> File is busy !";
+			return "<错误> 文件繁忙 !";
 
 		/***
 		 * 检查完毕，开始写文件操作
@@ -313,15 +317,16 @@ public class Dentry implements Serializable {
 		// 更新文件大小信息
 		target.size = info.length();
 
-		// 为文件分配内存
-		if (OSConfig.superBlock.vectorMap.allocateDisk(target) == false) {
+		// 为文件分配重新内存，失败时
+		if (!OSConfig.superBlock.vectorMap.allocateDisk(target)) {
 			dirTree.remove(FileName);// 从dentry中删除该索引
 			File.inode.write_locked = false;// 开锁
-			return "<错误> no free disk,original file deleted!";
+			return "<错误> 磁盘空间不足!";
 		}
 
 		/***
-		 * 把FileStream中的字符串写会磁盘，组合成完整的文件 (这个属于磁盘调度) 【接口】 writetoDisk()就是更新【磁盘】中相应的盘块内容
+		 * 把FileStream中的字符串写会磁盘，组合成完整的文件 (这个属于磁盘调度)
+		 * 【接口】 writetoDisk()就是更新【磁盘】中相应的盘块内容
 		 *
 		 */
 		ArrayList<String> list = new ArrayList<String>();

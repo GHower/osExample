@@ -61,7 +61,7 @@ public class PartitionWindow {
     public JTextArea textArea;
     public JScrollPane scrollPane;
     //初次启动随机产生
-    public int num = 49;
+    public int num = 22;
     public int rounds = 100;
 
     public JButton butDetail;
@@ -678,11 +678,13 @@ public class PartitionWindow {
     }
 
     public void changePowerOn() {
+        OSConfig.CPU_STATE = 1;
         on = true;
     }
 
     public void changePowerCLose() {
         on = false;
+        OSConfig.CPU_STATE = 0;
     }
 
     /**
@@ -762,6 +764,7 @@ public class PartitionWindow {
                     new JobStaticsWindow();
                 } else if(e.getActionCommand().equals("文件系统")){
                     System.out.println("文件系统");
+                    new DiskAndFileWindow();
                 }
             }
         });

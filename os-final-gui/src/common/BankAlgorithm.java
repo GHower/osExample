@@ -33,8 +33,7 @@ public class BankAlgorithm {
             // 尝试分配
             bank.tryAllocation();
             // 检查 试分配后系统是否安全,安全性检查子算法
-            boolean b = bank.checkSubSafe();
-            return b;
+            return bank.checkSubSafe();
         }
         return false;
     }
@@ -72,9 +71,11 @@ public class BankAlgorithm {
     private void tryAllocation() {
         for (String key : request.keySet()) {
             Integer dec = request.get(key);
+            // 当前资源已分配
             Integer curAll = allPcbAllocation.get(pName).get(key);
+            // 当前资源总可用
             Integer curMax = available.get(key);
-            allPcbAllocation.get(pName).put(key, curAll - dec);
+            allPcbAllocation.get(pName).put(key, curAll + dec);
             available.put(key, curMax - dec);
         }
     }

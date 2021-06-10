@@ -55,6 +55,39 @@ public class CreatTestProcess {
             createUserProcess(priority, memory, "", time_needed, OSConfig.root, 0);
         }
     }
+    // 命令的用户进程创建，type为作业类型
+    public static PCB createUserProcess(OSUser users,HashMap<String, String> parameters,int type){
+        int id = Integer.parseInt(parameters.get("ID"));
+        int priority = Integer.parseInt(parameters.get("priority"));
+        int memory = Integer.parseInt(parameters.get("memory"));
+        int time_needed = Integer.parseInt(parameters.get("time_needed"));
+        String name = parameters.get("name");
+        int pType = 1;
+
+        int thread = (int)(10+100*Math.random());
+        int port = (int)(10+100*Math.random());
+        PCB pcb = new PCB(id, type, priority, memory, time_needed);
+        pcb.process = new MyProcess(id, name, users,type, thread, port);
+        pcb.type = pType;
+
+        // 磁盘信息初始化
+        String Disk_write = (int) (23 + 100 * Math.random()) +"M";
+        String Disk_read = (int) (100 * Math.random()) +"M";
+
+        // 用户进程优先级默认为0；可以被休眠
+        pcb.process.init_process_scheduling(1, false);
+        pcb.process.init_process_disk(Disk_write, Disk_read);
+
+        JCB jcb = new JCB(pcb, type);
+        OSConfig.PCB_Map.put(id, pcb);
+        pcb.jid = jcb.JID;
+
+        // 在后备队列中加入该进程的信息
+        jcb.submitTime = OSConfig.System_time;
+        OSConfig.jobsList.addLast(jcb);
+        OSConfig.NEXT_PROCESS_ID++;
+        return pcb;
+    }
 
     private static PCB createUserProcess(
             int priority, int memory, String name,
@@ -79,8 +112,8 @@ public class CreatTestProcess {
         // 用户进程优先级默认为0；可以被休眠,创建进程
 //        pcb.process.init_process_scheduling(NO_SLEEP);
 //        pcb.process.init_process_disk(Disk_write, Disk_read);
-        // 生成max
-        pcb.process.max = createMaxAndAllocation(pcb);
+        // 生成max和allocation
+        createMaxAndAllocation(pcb);
         pcb.process.request = RandomTool.randomBool() ? createRequest(pcb) : null;
 
         JCB jcb = new JCB(pcb, type);
@@ -108,14 +141,12 @@ public class CreatTestProcess {
         return request;
     }
 
-    private static HashMap<String, Integer> createMaxAndAllocation(PCB pcb) {
-        HashMap<String, Integer> max = new HashMap<>();
+    private static void createMaxAndAllocation(PCB pcb) {
         Set<String> keys = OSConfig.available.keySet();
         // 现在先做全部资源申请
         for (String key : keys) {
-            max.put(key, RandomTool.random(OSConfig.available.get(key)));
+            pcb.process.max.put(key, RandomTool.random(OSConfig.available.get(key)));
             pcb.process.allocation.put(key,0);
         }
-        return max;
     }
 }

@@ -34,8 +34,6 @@ public class iNode implements Serializable{
 	//权限，分别是ugo，777代表最高权限，默认是744
 	// 和linux是一样的
 	public String authority = "744";
-
-
 	/***
 	 * 文件使用信息
 	 */
@@ -53,7 +51,7 @@ public class iNode implements Serializable{
 	// 占据的磁盘区域索引,索引表方式
 	public Vector<Integer> diskTable = new Vector<>();
 	// 创建索引节点
-	public Dentry dentry;
+	 public Dentry dentry;
 
 
 	 public iNode(String name,String owner,String group,int size,boolean isDir) {
@@ -63,8 +61,7 @@ public class iNode implements Serializable{
 		this.size = size;
 		this.isDir = isDir;
 		dentry = new Dentry(name,isDir,this);
-		
-		
+
 		/***
 		 * 初始化创建时间
 		 */

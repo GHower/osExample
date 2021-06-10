@@ -17,12 +17,10 @@ public class VectorMap implements Serializable {
     public boolean[][] map;
 
     public VectorMap(int size, int memoryPreDisk) {
-
         this.size = size;
         this.memoryPreDisk = memoryPreDisk;
         freeDiskNum = size * size;
         map = new boolean[size][size];
-
         init();
     }
 

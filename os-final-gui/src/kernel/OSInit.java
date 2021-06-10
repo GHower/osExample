@@ -58,12 +58,25 @@ public class OSInit {
             e.printStackTrace();
         }
     }
+    public static void saver() throws Exception {
 
+        File system = new File("System");
+
+        if (!system.exists())
+            system.createNewFile();
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(system));
+        oos.writeObject(OSConfig.userList);
+        oos.writeObject(OSConfig.ROOT);
+        oos.writeObject(OSConfig.superBlock);
+        oos.close();
+        saveDisk();
+    }
     public static void loader() throws Exception {
 
         File system = new File("System");
 
-//        loadDisk();
+        loadDisk();
         initResource();
 
         // 用户已经是存在的
@@ -104,6 +117,7 @@ public class OSInit {
         OSConfig.ROOT.creatFile("dev", "root", ".", true);
         OSConfig.ROOT.creatFile("bin", "root", ".", true);
         OSConfig.ROOT.creatFile("etc", "root", ".", true);
+        OSConfig.ROOT.creatFile("lib", "root", ".", true);
     }
     private static void initResource(){
         OSConfig.available.put("R1",10);

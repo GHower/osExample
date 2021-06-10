@@ -9,9 +9,7 @@ import java.util.regex.Pattern;
 
 
 /***
- * 
- * 对文件系统的操作
- *
+ * 对文件系统的操作,真实操作
  */
 public class FileSystemCommand {
 	// 用户类型判断
@@ -209,9 +207,6 @@ public class FileSystemCommand {
 		
 		return returnMessage;
 	}
-	
-	
-	
 
 	// 读文件操作
 	public static String readFile(OSUser user, String FileName) {
@@ -224,32 +219,43 @@ public class FileSystemCommand {
 
 	// 写文件操作
 	public static String writeFile(OSUser user, String FileName, String info) {
-
-		return user.current.writeFile(user, FileName, info);
-
-
+		Dentry current = locationDentry(user,FileName);
+		if(current==null){
+			return "<Error> 请输入正确路径!";
+		}
+		String[] split = FileName.split("/");
+		return current.writeFile(user, split[split.length-1], info);
 	}
 
 	// 创建文件操作
 	public static String touch(OSUser user, String FileName) {
-		Dentry current = user.current;
-		return current.creatFile(FileName, user.userName, user.groupName, false);
+		Dentry current = locationDentry(user,FileName);
+		if(current==null){
+			return "<Error> 请输入正确路径!";
+		}
+		String[] split = FileName.split("/");
+		return current.creatFile(split[split.length-1], user.userName, user.groupName, false);
 	}
 
-	// 创建目录操作
+	// 创建目录操作,相对路径创建
 	public static String mkdir(OSUser user, String FileName) {
-		Dentry current = user.current;
-		return current.creatFile(FileName,user.userName, user.groupName, true);
+		Dentry current = locationDentry(user,FileName);
+		if(current==null){
+			return "<Error> 请输入正确路径!";
+		}
+		String[] split = FileName.split("/");
+		return current.creatFile(split[split.length-1],user.userName, user.groupName, true);
 	}
 
 	// 删除文件操作
 	public static String rm(OSUser user, String FileName) {
-			
-		Dentry current = user.current;
-		return current.deleteFile(user, FileName);
-		
-		
-		
+		Dentry current = locationDentry(user,FileName);
+		if(current==null){
+			return "<Error> 请输入正确路径!";
+		}
+		String[] split = FileName.split("/");
+		return current.deleteFile(user, split[split.length-1]);
+
 	}
 
 	
@@ -274,7 +280,23 @@ public class FileSystemCommand {
 		
 		
 	}
-	
+
+	private static Dentry locationDentry(OSUser user,String FileName){
+		Dentry current = null;
+		String[] split = FileName.split("/");
+		if(split[0].isEmpty()){
+			current = OSConfig.ROOT;
+		}else{
+			current = user.current;
+		}
+		for (int i = 1; i < split.length-1; i++) {
+			String tmpPathString = split[i];
+			if (!current.dirTree.containsKey(tmpPathString))
+				return null;
+			current = current.dirTree.get(tmpPathString);
+		}
+		return current;
+	}
 	
 	
 	

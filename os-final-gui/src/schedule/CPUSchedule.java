@@ -40,7 +40,7 @@ public class CPUSchedule {
             CPUScheduleAlgorithm.CPUSchedule();
             Running(); // 模拟处理机运行一个时间片段
             // 系统时间调整
-            OSConfig.System_time += (100*OSConfig.TIMEPIECE)/1000.0;
+            OSConfig.System_time += (100 * OSConfig.TIMEPIECE) / 1000.0;
             try {
                 new Thread().sleep(100 * OSConfig.TIMEPIECE); // 假设处理机一个时间片大小为TIMEPIECE
             } catch (InterruptedException e) {
@@ -83,12 +83,15 @@ public class CPUSchedule {
             // 释放该进程占用的资源
             releaseResource(pcb);
             // 通知作业完成
-            finishJob(pcb);
+            if (pcb.type != 0) {
+                finishJob(pcb);
+            }
             System.out.println("进程(" + pcb.PID + "): --" + pcb.process.name + " 完成了!");
         }
     }
+
     // 回响通知作业完成
-    public static void finishJob(PCB pcb){
+    public static void finishJob(PCB pcb) {
         JCB finish = OSConfig.JCB_MAP_RUNNING.remove(pcb.jid);
         finish.finishTime = OSConfig.System_time;
         finish.runTime = finish.finishTime - finish.startTime;
@@ -106,13 +109,14 @@ public class CPUSchedule {
             pcbs.forEach(BlockActivate::activate);
         }
     }
-//    // 重置因资源导致阻塞的进程标记
+
+    //    // 重置因资源导致阻塞的进程标记
     // 过了一个时间片
     public static void Running() {
         PCB existRequest = OSConfig.running_list.getExistRequest();
-        if(existRequest!=null){
+        if (existRequest != null) {
             //检查这个请求
-            if(checkRequest(existRequest)){
+            if (checkRequest(existRequest)) {
                 System.out.println("请求通过");
                 HashMap<String, Integer> request = existRequest.process.request;
                 for (String key : request.keySet()) {
@@ -120,21 +124,24 @@ public class CPUSchedule {
                     Integer cur = existRequest.process.allocation.get(key);
                     Integer inc = request.get(key);
                     // 系统资源减少
-                    OSConfig.available.put(key,sys-inc);
+                    OSConfig.available.put(key, sys - inc);
                     // 进程占有资源上升
-                    existRequest.process.allocation.put(key,cur+inc);
+                    existRequest.process.allocation.put(key, cur + inc);
                 }
                 // 时间小于3,让请求结束
-                if(existRequest.time_needed - existRequest.process.time_used < 2){
-                    existRequest.process.request=null;
-                }else{
-                    // todo:重新生成请求
-                    existRequest.process.request=CreatTestProcess.createRequest(existRequest);
+                if (existRequest.time_needed - existRequest.process.time_used < 2) {
+                    existRequest.process.request = null;
+                } else {
+                    existRequest.process.request = CreatTestProcess.createRequest(existRequest);
                 }
-            }else{
+            } else {
                 System.out.println("请求不通过，要阻塞它");
                 Map<String, Integer> available = OSConfig.available;
                 BlockActivate.block(existRequest);
+            }
+            // 不是测试进程，可能要执行命名
+            if (existRequest.type == 1 && existRequest.process.command_type != -1) {
+                existRequest.process.run();
             }
         }
 
@@ -143,17 +150,18 @@ public class CPUSchedule {
         // 然后就绪队列中所有进程等待时间增加一个时间
         OSConfig.ready_list.timeWaitedPlus();
         // 然后后备队列中所有作业等待时间增加一个时间
-		OSConfig.jobsList.timeWaitedPlus();
+        OSConfig.jobsList.timeWaitedPlus();
     }
+
     // 检查运行队列中进程资源请求
-    public static boolean checkRequest(PCB existRequest){
+    public static boolean checkRequest(PCB existRequest) {
         int b = 2;// 是否使用银行家的触发阈值,倍数
         // 资源请求
         HashMap<String, Integer> request = existRequest.process.request;
 
         for (String key : request.keySet()) {
             // 有一个资源不能远大于本次请求
-            if (OSConfig.available.get(key) > request.get(key)*b) {
+            if (OSConfig.available.get(key) < request.get(key) * b) {
                 return BankAlgorithm.checkSafe(existRequest);
             }
         }
@@ -161,11 +169,11 @@ public class CPUSchedule {
     }
 
 
-    public static void releaseResource(PCB pcb){
+    public static void releaseResource(PCB pcb) {
         Set<String> keySet = pcb.process.allocation.keySet();
         for (String key : keySet) {
             Integer inc = pcb.process.allocation.get(key);
-            OSConfig.available.put(key,inc+OSConfig.available.get(key));
+            OSConfig.available.put(key, inc + OSConfig.available.get(key));
         }
     }
 

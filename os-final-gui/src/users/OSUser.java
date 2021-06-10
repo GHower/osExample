@@ -3,14 +3,17 @@ package users;
 import config.OSConfig;
 import file_system.Dentry;
 
+import java.io.Serializable;
+
 /**
  * 操作系统用户实体,主要用在文件系统
  */
-public class OSUser {
+public class OSUser implements Serializable {
 
     public String userName;
     public String groupName;
     public String password = "123456";
+    // 用户当前所在目录
     public Dentry current = OSConfig.ROOT;
 
 
