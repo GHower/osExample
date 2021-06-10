@@ -8,6 +8,7 @@ import file_system.BinCommands;
 import file_system.Dentry;
 import kernel.CommendInterpreter;
 import kernel.OSKernel;
+import utils.ConvertTool;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,6 +16,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
 /**
@@ -47,7 +50,7 @@ public class DiskAndFileWindow {
     // 硬盘位示图 的画笔
     public Graphics gDisk;
 
-    public JTree tree =null;
+    public JTree tree = null;
     // 其他参数
 
     public DiskAndFileWindow() {
@@ -154,16 +157,17 @@ public class DiskAndFileWindow {
                 }
             }
         };
-        panelDisk.setPreferredSize(new Dimension(880,830));
-        panelDisk.setBackground(new Color(238,238,238));
-
+        panelDisk.setPreferredSize(new Dimension(880, 830));
+        panelDisk.setBackground(new Color(238, 238, 238));
+        // 追加点击事件
+        onMouseListenerDisk(panelDisk);
 
         panelRight.add(nullLabel(540, 5));
         panelLeft.add(nullLabel(900, 5));
 
         // 右侧布局 文件树
         tree = panelRightUI();
-        panelRight.add(tree,1);
+        panelRight.add(tree, 1);
 
 
         // 左侧大布局加边框
@@ -177,6 +181,7 @@ public class DiskAndFileWindow {
         frame.setTitle("文件系统与磁盘简况");
         // 画笔取出
         gDisk = panelDisk.getGraphics();
+
     }
 
     public JTree panelRightUI() {
@@ -184,10 +189,10 @@ public class DiskAndFileWindow {
 //        total_num = Dentry.getTotalDirNum(OSConfig.ROOT)+Dentry.getTotalFileNum(OSConfig.ROOT);
         DefaultMutableTreeNode treeModel = dirTreeModel(OSConfig.ROOT);
         JTree tree = new JTree(treeModel);
-        tree.setBackground(new Color(238,238,238));
-        tree.setPreferredSize(new Dimension(450,850));
-        tree.setFont(GlobalConfig.font(Font.BOLD,20));
-        tree.setBorder(new EmptyBorder(20,30,0,0));
+        tree.setBackground(new Color(238, 238, 238));
+        tree.setPreferredSize(new Dimension(450, 850));
+        tree.setFont(GlobalConfig.font(Font.BOLD, 20));
+        tree.setBorder(new EmptyBorder(20, 30, 0, 0));
         return tree;
     }
 
@@ -202,17 +207,17 @@ public class DiskAndFileWindow {
             if (dentry.isDir) {
                 // 是目录就递归
                 DefaultMutableTreeNode child = dirTreeModel(dentry);
-                if(child!=null){
+                if (child != null) {
                     cur.add(child);
-                }else{
-                    DefaultMutableTreeNode cur2 = new DefaultMutableTreeNode(dentry){
-                        public boolean isLeaf(){
+                } else {
+                    DefaultMutableTreeNode cur2 = new DefaultMutableTreeNode(dentry) {
+                        public boolean isLeaf() {
                             return false;
                         }
                     };
                     cur.add(cur2);
                 }
-            }else{
+            } else {
                 DefaultMutableTreeNode cur2 = new DefaultMutableTreeNode(dentry);
                 cur.add(cur2);
             }
@@ -238,7 +243,7 @@ public class DiskAndFileWindow {
                     //repaint延迟重绘
 //                    panelDisk.repaint();
                     // 立即重绘
-                    panelDisk.paintImmediately(0,0,panelDisk.getWidth(),panelDisk.getHeight());
+                    panelDiskImmediately();
                     try {
                         String path = getPath();
                         System.out.println(path);
@@ -266,25 +271,76 @@ public class DiskAndFileWindow {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                }else if (e.getActionCommand().equals("运行")){
+                } else if (e.getActionCommand().equals("运行")) {
                     String commend = getCommend();
                     CommendInterpreter.CommendToProcess(commend);
                     // 刷新界面
 //                    refreshPanel();
-                }else if (e.getActionCommand().equals("刷新")){
+                } else if (e.getActionCommand().equals("刷新")) {
                     refreshPanel();
                 }
             }
         });
     }
+    private void panelDiskImmediately(){
+        panelDisk.paintImmediately(0, 0, panelDisk.getWidth(), panelDisk.getHeight());
+    }
+    // 磁盘面板增加点击事件
+    private void onMouseListenerDisk(JPanel panelDisk) {
+        panelDisk.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                panelDiskImmediately();
+                if(e.getX()>10&&e.getX()<850 && e.getY()>10&&e.getY()<600){
+                    System.out.println(e.getX()+"::"+e.getY());
+                    int i = (e.getX() - 20) / 42;
+                    int j = (e.getY() - 10) / 30;
+                    int b = j * 20 + i;
+                    System.out.println(i + "：" + j);
+                    int c = ConvertTool.SequenceToDisk_C(b,OSConfig.Disk_Track,OSConfig.Disk_Sector);
+                    int h = ConvertTool.SequenceToDisk_H(b,OSConfig.Disk_Track,OSConfig.Disk_Sector);
+                    int s = ConvertTool.SequenceToDisk_S(b,OSConfig.Disk_Sector);
+                    System.out.println(c + "：" + h +"：" + s);
+                    gDisk.setColor(new Color(254, 153, 6));
+                    gDisk.setFont(GlobalConfig.font(Font.PLAIN,15));
+                    gDisk.drawString("注：编号均从0开始",80,650);
+                    gDisk.setFont(GlobalConfig.font(Font.BOLD,24));
+                    gDisk.drawString("柱面号："+c,80,680);
+                    gDisk.drawString("磁道号："+h,280,680);
+                    gDisk.drawString("扇区号："+s,480,680);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+    }
+
     /* 刷新面板 */
-    public void refreshPanel(){
+    public void refreshPanel() {
         // 刷新文件树
-        if(tree!=null){
+        if (tree != null) {
             panelRight.remove(tree);
         }
         tree = panelRightUI();
-        panelRight.add(tree,1);
+        panelRight.add(tree, 1);
         panelRight.updateUI();
         //刷新磁盘区域
         panelDisk.repaint();
@@ -301,7 +357,7 @@ public class DiskAndFileWindow {
     /**
      * 获取命令
      */
-    public String getCommend(){
+    public String getCommend() {
         if (commendTextField == null) return "";
         return commendTextField.getText();
     }

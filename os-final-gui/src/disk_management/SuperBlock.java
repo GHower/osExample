@@ -6,8 +6,9 @@ import file_system.Dentry;
 import java.io.Serializable;
 
 public class SuperBlock implements Serializable{
-	//每个盘块大小(单位:Bytes)
+	//每个盘块大小(单位:Bytes),即一个扇区的大小
 	public int blockSize = 64;
+
 	//位示图大小（长/宽）
 	public int row_num = 20;
 	public VectorMap vectorMap;

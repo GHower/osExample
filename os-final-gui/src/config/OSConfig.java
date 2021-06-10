@@ -31,9 +31,13 @@ public class OSConfig {
     // linux中会把文件系统挂载到根目录。
     public static Dentry ROOT;
 
-    // 磁盘超级块,磁盘属于外设硬件,参数在硬件上,这里设计在这个块上
-    public static SuperBlock superBlock;
 
+    public static int Disk_Cylinder = 10; // 10个柱面
+    public static int Disk_Track = 5; // 每个柱面 5个磁道
+    public static int Disk_Sector = 8; // 每个磁道8个扇区
+
+    // 磁盘超级块,磁盘属于外设硬件,参数在硬件上,
+    public static SuperBlock superBlock;
     // 磁盘超级块
     public static String[] MyDisk = new String[20 * 20];
 
