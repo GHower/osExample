@@ -164,7 +164,7 @@ public class Dentry implements Serializable {
 		if (!OSConfig.superBlock.vectorMap.allocateDisk(newfile))
 			return "<错误> 磁盘空间不足 !";
 
-		// 在该目录索引节点中加入该文件的索引节点
+		// 在该目录的目录树中加入该文件的目录项
 		dirTree.put(name, newfile.dentry);
 
 		// 为该文件创立路径

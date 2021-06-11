@@ -61,7 +61,7 @@ public class PartitionWindow {
     public JTextArea textArea;
     public JScrollPane scrollPane;
     //初次启动随机产生
-    public int num = 22;
+    public int num = 2;
     public int rounds = 100;
 
     public JButton butDetail;

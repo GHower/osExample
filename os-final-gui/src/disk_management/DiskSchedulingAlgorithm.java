@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class DiskSchedulingAlgorithm {
+    static int current_cursor=0;//当前的游标
+    static int cursor_direction=1;// 游标方向
 
     public static String diskSchedulingAlgorithm(Vector<Integer> disks, int flag, ArrayList<String> files) {
         switch (OSConfig.DISK_SCHEDULE_FLAG) {
@@ -51,8 +53,8 @@ public class DiskSchedulingAlgorithm {
 
     // 扫描算法（SCAN）
     public static String SCAN(Vector<Integer> disks, int flag, ArrayList<String> files) {
-        int current_cursor = disks.get(0);//当前的游标
-        int cursor_direction = 1; // 游标方向
+//        current_cursor = disks.get(0);
+//        cursor_direction = 1;
 
         if (flag == 0) {
             String info = "";
