@@ -16,6 +16,11 @@ public class OSInit {
     // 加载磁盘信息
     public static void loadDisk() {
         try {
+            File file = new File("MyDisk");
+            if(!file.exists()){
+                initDisk();
+                return;
+            }
             BufferedReader br = new BufferedReader(new FileReader("MyDisk"));
             int lineNum = 0;
             String line = br.readLine();

@@ -117,7 +117,7 @@ public class CPUSchedule {
         if (existRequest != null) {
             //检查这个请求
             if (checkRequest(existRequest)) {
-                System.out.println("请求通过");
+//                System.out.println("请求通过");
                 HashMap<String, Integer> request = existRequest.process.request;
                 for (String key : request.keySet()) {
                     Integer sys = OSConfig.available.get(key);

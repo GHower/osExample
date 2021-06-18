@@ -46,8 +46,6 @@ public class OSConfig {
 
     // 下一个新创建进程的ID
     public static int NEXT_PROCESS_ID = 100;
-    // 轮转时间片大小
-    public static int TIMEPIECES_SIZE = 4;
     // 处理机的数量
     public static int CPU_num = 1;
     // 内核大小
@@ -83,10 +81,6 @@ public class OSConfig {
     // 3－最坏匹配算法；
     public static int PARTITION_ALGORITHM_FLAG = 0;
 
-    // 页式存储页面置换算法：
-    // 0-LRU；1-LFU
-    public static int PAGINATION_ALGORITHM_FLAG = 0;
-
     // 磁盘调度算法：
     // 0-FCFS；1-SCAN；2-CSCAN
     public static int DISK_SCHEDULE_FLAG = 1;
@@ -106,12 +100,8 @@ public class OSConfig {
 
     // 后备队列
     public static JCBLinkedList jobsList = new JCBLinkedList();
-    // 页式存储分配时，内存中实际存在的页面
-//    public static Pages_LInkList inmemorys = new Pages_LInkList(CPU_num * 3);
-//    public static Pages_LInkList outmemorys = new Pages_LInkList();
 
     public static Memory memory = new Memory(MAX_MEMORY);
-    public static Mem point = null;
 
     public static Map<String,Integer> available=new HashMap<>();
     public static double System_time = 0;

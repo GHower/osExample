@@ -64,10 +64,6 @@ public class PartitionWindow {
     public int num = 2;
     public int rounds = 100;
 
-    public JButton butDetail;
-
-    public JComboBox comboBox;
-
     public Graphics g;
     public Graphics gDisk;
     public Graphics gChoose;

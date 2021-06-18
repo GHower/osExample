@@ -33,7 +33,14 @@ public class BankAlgorithm {
             // 尝试分配
             bank.tryAllocation();
             // 检查 试分配后系统是否安全,安全性检查子算法
-            return bank.checkSubSafe();
+            System.out.println("----------------------试分配后----------------------");
+            boolean b = bank.checkSubSafe();
+            if(b){
+                System.out.println("成功");
+            }else{
+                System.out.println("失败");
+            }
+            return b;
         }
         return false;
     }
@@ -59,6 +66,7 @@ public class BankAlgorithm {
                 for (String key : available.keySet()) {
                     available.put(key, available.get(key) + allPcbAllocation.get(pn).get(key));
                 }
+//                System.out.println(pn+"\t"+allPcbMax.get(pn)+"\t"+need+"\t"+allPcbAllocation.get(pn));
                 // 一次添加完成
                 checkSubSafe();
                 return true;
@@ -87,11 +95,11 @@ public class BankAlgorithm {
 
         for (String key : keys) {
             Integer num = request.get(key);
-            if (num <= need.get(key) && num <= available.get(key)) {
-                return true;
+            if (num > need.get(key) || num > available.get(key)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     // 初始化算法数据

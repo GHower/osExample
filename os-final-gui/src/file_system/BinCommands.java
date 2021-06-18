@@ -9,26 +9,12 @@ import users.OSUser;
 import java.util.HashMap;
 
 /***
- * 
  *  包装一些用户的命令：
  *  	0.mkdir 【目录名】
- *  	1.read 【文件名】
+ *  	1.read 【文件名】 todo
  *  	2.write 【文件名】【内容】
  *  	3.touch 【文件名】【大小】
  *  	4.rm 【文件名】
- *  	5.ls
- *  	6.chmod 【权限】【文件名】
- *   	7.cd 【目标路径】
- *   	8.进程通信
- *   	9.rmdir 【目录名】
- *   	10.pwd
- *   	11.who
- *   	12.mail 【用户名】【信息】
- *   	13.time
- *   	14.who
- *   	15.passwd 【新密码】
- *  	
- *
  */
 public class BinCommands {
 	//mkdir
@@ -73,7 +59,7 @@ public class BinCommands {
 	public static void Command_write(OSUser users,String command) {
 		int m = 500;
 		if(users.current.dirTree.containsKey(command))
-			m += users.current.dirTree.get(command).inode.size+command.length();
+			m += users.current.dirTree.get(command).inode.size+command.split("@#")[1].length();
 		HashMap<String, String> parameters = new HashMap<String, String>();
 		parameters.put("ID", String.valueOf(OSConfig.NEXT_PROCESS_ID));
 		parameters.put("priority",String.valueOf(10));

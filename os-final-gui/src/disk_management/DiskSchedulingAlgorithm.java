@@ -53,43 +53,32 @@ public class DiskSchedulingAlgorithm {
 
     // 扫描算法（SCAN）
     public static String SCAN(Vector<Integer> disks, int flag, ArrayList<String> files) {
-//        current_cursor = disks.get(0);
-//        cursor_direction = 1;
-
+        Vector<Integer> disks2 = new Vector<>(disks);
         if (flag == 0) {
             String info = "";
-            for (int diskID : disks) {
+            for (int diskID : disks2) {
                 info += OSConfig.MyDisk[diskID].substring(1);
             }
             return info;
         } else if (flag == 1) {
             int i = 0;
-            int size = disks.size();
+            int size = disks2.size();
             int total = 0;
-            System.err.println(size);
             while (i < size) {
                 // 改变游标方向
-                if (current_cursor >= OSConfig.MyDisk.length-1 || current_cursor <= 0) {
+                if (current_cursor > OSConfig.MyDisk.length-1 || current_cursor < 0) {
                     cursor_direction = -cursor_direction;
                 }
                 // 磁头到了指定位置
-                if (disks.contains(current_cursor)) {
-                    System.err.println(current_cursor + "   " + files.get(i));
+                if (disks2.contains(current_cursor)) {
                     OSConfig.MyDisk[current_cursor] = "$";
                     OSConfig.MyDisk[current_cursor] += files.get(i);
+                    disks2.remove(Integer.valueOf(current_cursor));
                     i++;
                 }
                 current_cursor += cursor_direction;
-
                 total += 1;
             }
-            System.out.println("移动总距离：" + total);
-//            for (int diskID : disks) {
-//                System.err.println(diskID + "   " + files.get(i));
-//                OSConfig.MyDisk[diskID] = "$";
-//                OSConfig.MyDisk[diskID] += files.get(i);
-//                i++;
-//            }
             return null;
         } else {
             for (int diskID : disks) {
@@ -99,34 +88,9 @@ public class DiskSchedulingAlgorithm {
         }
     }
 
-    // 循环扫描算法（CSCAN）
+    // TODO:循环扫描算法（CSCAN）
     public static String CSCAN(Vector<Integer> disks, int flag, ArrayList<String> files) {
-        int current_cursor = -1;//当前的游标
-        int rollback = -1;//末尾的游标
-        if (flag == 0) {
-            String info = "";
-            for (int diskID : disks) {
-                info += OSConfig.MyDisk[diskID].substring(1);
-            }
-            return info;
-        } else if (flag == 1) {
-            int i = 0;
-            System.err.println(disks.size());
-            for (int diskID : disks) {
-                System.err.println(diskID + "   " + files.get(i));
-                OSConfig.MyDisk[diskID] = "$";
-                OSConfig.MyDisk[diskID] += files.get(i);
-                i++;
-            }
-            return null;
-
-        } else {
-            for (int diskID : disks) {
-                OSConfig.MyDisk[diskID] = "$";
-            }
-            return null;
-        }
-
+        return null;
     }
 
 }

@@ -73,7 +73,6 @@ public class JobScheduling {
 
 			pcb.process.time_waited = 0;
 		}
-
 	}
 
 	// 短作业优先(Short Job First)，用时最短的作业先被服务
